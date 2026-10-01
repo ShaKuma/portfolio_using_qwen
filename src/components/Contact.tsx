@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useInView } from '../hooks/useInView';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -8,6 +9,8 @@ export default function Contact() {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const { ref: headerRef, isInView: headerVisible } = useInView();
+  const { ref: formRef, isInView: formVisible } = useInView();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,24 +20,27 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="py-20 lg:py-32 section-gradient">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="contact" className="py-24 lg:py-36 relative">
+      <div className="section-divider"></div>
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <span className="inline-block px-4 py-1.5 text-sm font-medium text-primary-light bg-primary/10 rounded-full mb-4">
+        <div ref={headerRef} className={`text-center mb-20 reveal ${headerVisible ? 'visible' : ''}`}>
+          <span className="inline-block px-4 py-1.5 text-xs font-semibold tracking-wider uppercase text-primary-light bg-primary/10 rounded-full mb-5 border border-primary/20">
             Get In Touch
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary tracking-tight">
             Let's Work <span className="gradient-text">Together</span>
           </h2>
           <p className="mt-4 text-text-secondary max-w-2xl mx-auto">
             Have a project in mind or want to discuss opportunities? I'd love to hear from you.
           </p>
+          <div className="mt-4 w-16 h-1 gradient-bg rounded-full mx-auto"></div>
         </div>
 
-        <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
+        <div ref={formRef} className="grid lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Contact Info */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className={`lg:col-span-2 space-y-6 reveal-left ${formVisible ? 'visible' : ''}`}>
             <div className="glass-card rounded-2xl p-6">
               <h3 className="text-xl font-bold text-text-primary mb-6">Contact Information</h3>
               <div className="space-y-5">
@@ -48,12 +54,12 @@ export default function Contact() {
                     href={item.href}
                     className="flex items-start gap-4 group"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                    <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
                       <i className={`fas ${item.icon} text-primary-light`}></i>
                     </div>
                     <div>
-                      <p className="text-sm text-text-muted">{item.label}</p>
-                      <p className="text-text-primary group-hover:text-primary-light transition-colors">{item.value}</p>
+                      <p className="text-xs text-text-muted font-medium uppercase tracking-wider">{item.label}</p>
+                      <p className="text-text-primary group-hover:text-primary-light transition-colors font-medium">{item.value}</p>
                     </div>
                   </a>
                 ))}
@@ -62,97 +68,105 @@ export default function Contact() {
 
             {/* Social Links */}
             <div className="glass-card rounded-2xl p-6">
-              <h3 className="text-lg font-bold text-text-primary mb-4">Connect With Me</h3>
+              <h3 className="text-lg font-bold text-text-primary mb-5">Connect With Me</h3>
               <div className="flex gap-3">
                 {[
-                  { icon: 'fab fa-github', label: 'GitHub', href: '#', color: 'hover:bg-gray-700' },
-                  { icon: 'fab fa-linkedin-in', label: 'LinkedIn', href: '#', color: 'hover:bg-blue-700' },
-                  { icon: 'fab fa-twitter', label: 'Twitter', href: '#', color: 'hover:bg-sky-500' },
-                  { icon: 'fab fa-dev', label: 'Dev.to', href: '#', color: 'hover:bg-gray-800' },
+                  { icon: 'fab fa-github', label: 'GitHub', hoverClass: 'hover:bg-gray-800 hover:border-gray-600' },
+                  { icon: 'fab fa-linkedin-in', label: 'LinkedIn', hoverClass: 'hover:bg-blue-600 hover:border-blue-500' },
+                  { icon: 'fab fa-twitter', label: 'Twitter', hoverClass: 'hover:bg-sky-500 hover:border-sky-400' },
+                  { icon: 'fab fa-dev', label: 'Dev.to', hoverClass: 'hover:bg-white hover:border-white hover:text-dark-bg' },
                 ].map((social) => (
                   <a
                     key={social.label}
-                    href={social.href}
+                    href="#"
                     aria-label={social.label}
-                    className={`w-11 h-11 rounded-lg bg-dark-bg border border-dark-border flex items-center justify-center text-text-secondary hover:text-white ${social.color} transition-all duration-200`}
+                    className={`w-12 h-12 rounded-xl bg-dark-card border border-dark-border flex items-center justify-center text-text-muted hover:text-white ${social.hoverClass} transition-all duration-300 hover:scale-110 hover:-translate-y-1`}
                   >
-                    <i className={`${social.icon}`}></i>
+                    <i className={`${social.icon} text-lg`}></i>
                   </a>
                 ))}
               </div>
             </div>
+
+            {/* Quick response note */}
+            <div className="flex items-center gap-3 px-5 py-4 rounded-xl bg-primary/5 border border-primary/10">
+              <i className="fas fa-bolt text-warm"></i>
+              <p className="text-sm text-text-secondary">
+                <span className="text-text-primary font-medium">Quick response</span> — I typically reply within 24 hours
+              </p>
+            </div>
           </div>
 
           {/* Contact Form */}
-          <div className="lg:col-span-3">
+          <div className={`lg:col-span-3 reveal-right ${formVisible ? 'visible' : ''}`} style={{ transitionDelay: '0.2s' }}>
             <div className="glass-card rounded-2xl p-6 lg:p-8">
               {submitted ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                    <i className="fas fa-check text-green-400 text-2xl"></i>
+                <div className="flex flex-col items-center justify-center py-16 text-center animate-scale-in">
+                  <div className="w-20 h-20 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-6">
+                    <i className="fas fa-check text-green-400 text-3xl"></i>
                   </div>
-                  <h3 className="text-xl font-bold text-text-primary mb-2">Message Sent!</h3>
+                  <h3 className="text-2xl font-bold text-text-primary mb-3">Message Sent!</h3>
                   <p className="text-text-secondary">Thank you for reaching out. I'll get back to you soon.</p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="grid sm:grid-cols-2 gap-5">
-                    <div>
-                      <label className="block text-sm font-medium text-text-secondary mb-2">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <div className="group">
+                      <label className="block text-sm font-medium text-text-secondary mb-2.5">
                         Your Name
                       </label>
                       <input
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all"
+                        className="w-full px-4 py-3.5 bg-dark-bg border border-dark-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all duration-300"
                         placeholder="John Doe"
                         required
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-text-secondary mb-2">
+                    <div className="group">
+                      <label className="block text-sm font-medium text-text-secondary mb-2.5">
                         Your Email
                       </label>
                       <input
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all"
+                        className="w-full px-4 py-3.5 bg-dark-bg border border-dark-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all duration-300"
                         placeholder="john@example.com"
                         required
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-2">
+                    <label className="block text-sm font-medium text-text-secondary mb-2.5">
                       Subject
                     </label>
                     <input
                       type="text"
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all"
+                      className="w-full px-4 py-3.5 bg-dark-bg border border-dark-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all duration-300"
                       placeholder="Project Discussion"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-2">
+                    <label className="block text-sm font-medium text-text-secondary mb-2.5">
                       Message
                     </label>
                     <textarea
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       rows={5}
-                      className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/25 transition-all resize-none"
+                      className="w-full px-4 py-3.5 bg-dark-bg border border-dark-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all duration-300 resize-none"
                       placeholder="Tell me about your project..."
                       required
                     ></textarea>
                   </div>
                   <button
                     type="submit"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 text-white font-semibold gradient-bg rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
+                    className="btn-primary w-full sm:w-auto justify-center"
                   >
                     <i className="fas fa-paper-plane"></i>
                     Send Message

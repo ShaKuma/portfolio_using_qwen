@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 
-const roles = ['Full Stack Developer', 'Cloud Architect', 'Open Source Contributor', 'System Designer'];
+const roles = ['Full Stack Developer', 'Cloud Architect', 'System Designer', 'Open Source Advocate'];
 
 export default function Hero() {
   const [currentRole, setCurrentRole] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const role = roles[currentRole];
@@ -24,90 +25,142 @@ export default function Hero() {
           }
         }
       },
-      isDeleting ? 50 : 100
+      isDeleting ? 40 : 80
     );
     return () => clearTimeout(timeout);
   }, [displayText, isDeleting, currentRole]);
 
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth - 0.5) * 20,
+        y: (e.clientY / window.innerHeight - 0.5) * 20,
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center hero-gradient overflow-hidden">
-      {/* Animated background elements */}
+    <section id="home" className="relative min-h-screen flex items-center justify-center hero-gradient overflow-hidden noise-bg">
+      {/* Animated background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl"></div>
-        
+        <div
+          className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[100px] animate-morph"
+          style={{ transform: `translate(${mousePos.x * 0.5}px, ${mousePos.y * 0.5}px)` }}
+        ></div>
+        <div
+          className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] bg-accent/6 rounded-full blur-[80px] animate-morph"
+          style={{ transform: `translate(${mousePos.x * -0.3}px, ${mousePos.y * -0.3}px)`, animationDelay: '4s' }}
+        ></div>
+        <div
+          className="absolute top-1/2 right-1/3 w-[300px] h-[300px] bg-primary/5 rounded-full blur-[60px] animate-float"
+          style={{ animationDelay: '2s' }}
+        ></div>
+
         {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-          backgroundSize: '60px 60px'
+        <div className="absolute inset-0 opacity-[0.02]" style={{
+          backgroundImage: `linear-gradient(rgba(124, 58, 237, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(124, 58, 237, 0.3) 1px, transparent 1px)`,
+          backgroundSize: '80px 80px'
         }}></div>
+
+        {/* Floating particles */}
+        {[...Array(6)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 rounded-full bg-primary-light/40 animate-float"
+            style={{
+              top: `${20 + i * 15}%`,
+              left: `${10 + i * 16}%`,
+              animationDelay: `${i * 1.5}s`,
+              animationDuration: `${6 + i * 2}s`,
+            }}
+          ></div>
+        ))}
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Status badge */}
-        <div className="animate-fade-in-up inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-8">
-          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-          <span className="text-sm text-text-secondary">Available for opportunities</span>
+        <div className="animate-fade-in-down inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full glass-card mb-10">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-400"></span>
+          </span>
+          <span className="text-sm text-text-secondary font-medium">Available for new opportunities</span>
         </div>
 
-        {/* Main heading */}
-        <h1 className="animate-fade-in-up text-4xl sm:text-5xl md:text-7xl font-bold text-text-primary mb-6 leading-tight" style={{ animationDelay: '0.2s' }}>
-          Hi, I'm <span className="gradient-text">Alex Chen</span>
-        </h1>
+        {/* Main heading with staggered animation */}
+        <div className="overflow-hidden mb-4">
+          <h1 className="animate-fade-in-up text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-text-primary leading-[1.1] tracking-tight" style={{ animationDelay: '0.2s' }}>
+            Hi, I'm{' '}
+            <span className="relative inline-block">
+              <span className="gradient-text">Alex Chen</span>
+              <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none">
+                <path d="M2 10C50 4 100 2 150 6C200 10 250 4 298 8" stroke="url(#underline-gradient)" strokeWidth="3" strokeLinecap="round"/>
+                <defs>
+                  <linearGradient id="underline-gradient" x1="0" y1="0" x2="300" y2="0">
+                    <stop stopColor="#7c3aed"/>
+                    <stop offset="1" stopColor="#06b6d4"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </span>
+          </h1>
+        </div>
 
         {/* Typing effect */}
-        <div className="animate-fade-in-up text-xl sm:text-2xl md:text-3xl text-text-secondary mb-8 h-10" style={{ animationDelay: '0.4s' }}>
-          <span>{displayText}</span>
-          <span className="inline-block w-0.5 h-7 bg-primary-light ml-1 animate-pulse"></span>
+        <div className="animate-fade-in-up h-12 mb-8 flex items-center justify-center" style={{ animationDelay: '0.4s' }}>
+          <span className="text-xl sm:text-2xl md:text-3xl font-light text-text-secondary tracking-wide">
+            {displayText}
+          </span>
+          <span className="typing-cursor"></span>
         </div>
 
         {/* Description */}
-        <p className="animate-fade-in-up max-w-2xl mx-auto text-lg text-text-muted mb-10 leading-relaxed" style={{ animationDelay: '0.6s' }}>
+        <p className="animate-fade-in-up max-w-2xl mx-auto text-lg text-text-muted mb-12 leading-relaxed" style={{ animationDelay: '0.6s' }}>
           I craft scalable, high-performance software solutions with 8+ years of experience 
-          building products that serve millions of users. Passionate about clean code, 
-          system design, and developer experience.
+          building products that serve millions of users. Passionate about clean architecture, 
+          developer experience, and pushing the boundaries of what's possible.
         </p>
 
         {/* CTA Buttons */}
         <div className="animate-fade-in-up flex flex-col sm:flex-row items-center justify-center gap-4" style={{ animationDelay: '0.8s' }}>
-          <a
-            href="#projects"
-            className="group inline-flex items-center gap-2 px-8 py-4 text-white font-semibold gradient-bg rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40"
-          >
-            <i className="fas fa-code text-sm"></i>
+          <a href="#projects" className="btn-primary text-base">
+            <i className="fas fa-rocket text-sm"></i>
             View My Work
-            <i className="fas fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"></i>
+            <i className="fas fa-arrow-right text-sm ml-1"></i>
           </a>
-          <a
-            href="#contact"
-            className="inline-flex items-center gap-2 px-8 py-4 text-text-primary font-semibold border border-dark-border rounded-xl hover:border-primary/50 hover:bg-white/5 transition-all"
-          >
+          <a href="#contact" className="btn-secondary text-base">
             <i className="fas fa-download text-sm"></i>
             Download CV
           </a>
         </div>
 
         {/* Stats */}
-        <div className="animate-fade-in-up mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6" style={{ animationDelay: '1s' }}>
+        <div className="animate-fade-in-up mt-20 grid grid-cols-2 sm:grid-cols-4 gap-8" style={{ animationDelay: '1s' }}>
           {[
             { value: '8+', label: 'Years Experience' },
             { value: '50+', label: 'Projects Delivered' },
             { value: '30+', label: 'Happy Clients' },
             { value: '15K+', label: 'GitHub Stars' },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold gradient-text">{stat.value}</div>
-              <div className="text-sm text-text-muted mt-1">{stat.label}</div>
+          ].map((stat, i) => (
+            <div key={stat.label} className="text-center group cursor-default" style={{ animationDelay: `${1 + i * 0.1}s` }}>
+              <div className="text-3xl sm:text-4xl font-bold gradient-text-static group-hover:scale-110 transition-transform duration-300">
+                {stat.value}
+              </div>
+              <div className="text-sm text-text-muted mt-2 font-medium">{stat.label}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <a href="#about" className="text-text-muted hover:text-primary-light transition-colors">
-          <i className="fas fa-chevron-down text-xl"></i>
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
+        <a href="#about" className="flex flex-col items-center gap-2 text-text-muted hover:text-primary-light transition-colors group">
+          <span className="text-xs font-medium tracking-widest uppercase">Scroll</span>
+          <div className="w-5 h-8 rounded-full border-2 border-current flex items-start justify-center p-1">
+            <div className="w-1 h-2 rounded-full bg-current animate-bounce"></div>
+          </div>
         </a>
       </div>
     </section>

@@ -1,3 +1,5 @@
+import { useInView } from '../hooks/useInView';
+
 const experiences = [
   {
     role: 'Senior Software Engineer',
@@ -50,57 +52,67 @@ const experiences = [
 ];
 
 export default function Experience() {
+  const { ref: headerRef, isInView: headerVisible } = useInView();
+  const { ref: timelineRef, isInView: timelineVisible } = useInView();
+
   return (
-    <section id="experience" className="py-20 lg:py-32">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="experience" className="py-24 lg:py-36 relative">
+      <div className="section-divider"></div>
+      
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <span className="inline-block px-4 py-1.5 text-sm font-medium text-primary-light bg-primary/10 rounded-full mb-4">
+        <div ref={headerRef} className={`text-center mb-20 reveal ${headerVisible ? 'visible' : ''}`}>
+          <span className="inline-block px-4 py-1.5 text-xs font-semibold tracking-wider uppercase text-primary-light bg-primary/10 rounded-full mb-5 border border-primary/20">
             Career Journey
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary tracking-tight">
             Work <span className="gradient-text">Experience</span>
           </h2>
           <p className="mt-4 text-text-secondary max-w-2xl mx-auto">
             My professional journey building software that makes a difference
           </p>
+          <div className="mt-4 w-16 h-1 gradient-bg rounded-full mx-auto"></div>
         </div>
 
         {/* Timeline */}
-        <div className="relative">
+        <div ref={timelineRef} className="relative">
           {/* Timeline line */}
-          <div className="absolute left-8 lg:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary via-accent to-primary/20"></div>
+          <div className="absolute left-6 lg:left-1/2 lg:-translate-x-px top-0 bottom-0 w-px">
+            <div className={`h-full bg-gradient-to-b from-primary via-accent to-primary/20 transition-all duration-1000 ${timelineVisible ? 'opacity-100' : 'opacity-0'}`}></div>
+          </div>
 
           <div className="space-y-12">
             {experiences.map((exp, index) => (
               <div
                 key={exp.company}
-                className={`relative flex flex-col lg:flex-row gap-8 ${
-                  index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
-                }`}
+                className={`relative reveal ${timelineVisible ? 'visible' : ''}`}
+                style={{ transitionDelay: `${index * 0.2}s` }}
               >
                 {/* Timeline dot */}
-                <div className="absolute left-8 lg:left-1/2 w-4 h-4 -translate-x-1/2 rounded-full gradient-bg border-4 border-dark-bg z-10 animate-pulse-glow" style={{ animationDelay: `${index * 0.5}s` }}></div>
+                <div className="absolute left-6 lg:left-1/2 -translate-x-1/2 z-10">
+                  <div className="w-4 h-4 rounded-full gradient-bg border-4 border-dark-bg"></div>
+                  <div className="absolute inset-0 w-4 h-4 rounded-full gradient-bg animate-ping opacity-20"></div>
+                </div>
 
-                {/* Content */}
-                <div className={`ml-16 lg:ml-0 lg:w-1/2 ${index % 2 === 0 ? 'lg:pr-12' : 'lg:pl-12'}`}>
-                  <div className="glass-card rounded-2xl p-6 hover:border-primary/30 transition-all duration-300">
-                    {/* Period */}
-                    <span className="inline-block px-3 py-1 text-xs font-medium text-primary-light bg-primary/10 rounded-full mb-3">
+                {/* Content card */}
+                <div className={`ml-14 lg:ml-0 lg:w-[calc(50%-2rem)] ${index % 2 === 0 ? 'lg:mr-auto' : 'lg:ml-auto'}`}>
+                  <div className="glass-card card-glow rounded-2xl p-6">
+                    {/* Period badge */}
+                    <span className="inline-block px-3 py-1 text-xs font-semibold text-primary-light bg-primary/10 rounded-full mb-3 border border-primary/20">
                       {exp.period}
                     </span>
 
                     <h3 className="text-xl font-bold text-text-primary">{exp.role}</h3>
-                    <p className="text-primary-light font-medium mb-3">{exp.company}</p>
-                    <p className="text-sm text-text-secondary mb-4 leading-relaxed">
+                    <p className="text-primary-light font-medium text-sm mb-3">{exp.company}</p>
+                    <p className="text-sm text-text-muted mb-4 leading-relaxed">
                       {exp.description}
                     </p>
 
                     {/* Achievements */}
-                    <ul className="space-y-2 mb-4">
+                    <ul className="space-y-2 mb-5">
                       {exp.achievements.map((achievement) => (
-                        <li key={achievement} className="flex items-start gap-2 text-sm text-text-secondary">
-                          <i className="fas fa-check-circle text-green-400 mt-0.5 flex-shrink-0"></i>
+                        <li key={achievement} className="flex items-start gap-2.5 text-sm text-text-secondary">
+                          <i className="fas fa-check-circle text-green-400 mt-0.5 flex-shrink-0 text-xs"></i>
                           <span>{achievement}</span>
                         </li>
                       ))}
@@ -111,7 +123,7 @@ export default function Experience() {
                       {exp.tech.map((t) => (
                         <span
                           key={t}
-                          className="px-2.5 py-1 text-xs font-medium text-text-muted bg-dark-bg rounded-md border border-dark-border"
+                          className="px-2.5 py-1 text-xs font-medium text-text-muted bg-dark-bg rounded-md border border-dark-border/50"
                         >
                           {t}
                         </span>
