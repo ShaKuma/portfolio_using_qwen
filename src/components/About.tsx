@@ -79,11 +79,48 @@ export default function About() {
                 problems, providing cost-effective solutions that drive real business value.
               </p>
               <p className="text-text-secondary leading-relaxed text-[15px]">
-                Passionate about learning and quickly implementing new technologies as required. Recently 
-                completed a Machine Learning and Artificial Intelligence course from IIT Delhi (6 months), 
-                gaining expertise in deep learning, NLP, and LLMs. My automation work has saved $32K+ 
-                quarterly through innovative engineering solutions.
+                Passionate about learning and quickly implementing new technologies as required. My 
+                automation work has saved $32K+ quarterly through innovative engineering solutions.
               </p>
+
+              {/* AI/ML Capabilities Highlight */}
+              <div className="mt-6 p-5 rounded-xl bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                    <i className="fas fa-brain text-white"></i>
+                  </div>
+                  <div>
+                    <h4 className="text-base font-bold text-text-primary">AI/ML Expertise</h4>
+                    <p className="text-xs text-text-muted">IIT Delhi Certified • 6 Months Intensive Program</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <i className="fas fa-check-circle text-green-400 mt-0.5 flex-shrink-0 text-xs"></i>
+                    <span className="text-text-secondary">Deep Learning (ANN, CNN, RNN, LSTM)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <i className="fas fa-check-circle text-green-400 mt-0.5 flex-shrink-0 text-xs"></i>
+                    <span className="text-text-secondary">NLP & Transformers</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <i className="fas fa-check-circle text-green-400 mt-0.5 flex-shrink-0 text-xs"></i>
+                    <span className="text-text-secondary">Computer Vision (YOLOv8)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <i className="fas fa-check-circle text-green-400 mt-0.5 flex-shrink-0 text-xs"></i>
+                    <span className="text-text-secondary">LLMs & Transfer Learning</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <i className="fas fa-check-circle text-green-400 mt-0.5 flex-shrink-0 text-xs"></i>
+                    <span className="text-text-secondary">TensorFlow & PyTorch</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <i className="fas fa-check-circle text-green-400 mt-0.5 flex-shrink-0 text-xs"></i>
+                    <span className="text-text-secondary">Hugging Face Ecosystem</span>
+                  </div>
+                </div>
+              </div>
               
               {/* Quick facts */}
               <div className="grid grid-cols-2 gap-4 pt-6">

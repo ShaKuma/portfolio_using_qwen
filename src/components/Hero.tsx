@@ -105,6 +105,14 @@ export default function Hero() {
           </h1>
         </div>
 
+        {/* AI/ML Badge */}
+        <div className="animate-fade-in-up mb-6" style={{ animationDelay: '0.3s' }}>
+          <span className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-primary to-accent rounded-full shadow-lg shadow-primary/30">
+            <i className="fas fa-robot"></i>
+            AI/ML Engineer • IIT Delhi Certified
+          </span>
+        </div>
+
         {/* Typing effect */}
         <div className="animate-fade-in-up h-12 mb-8 flex items-center justify-center" style={{ animationDelay: '0.4s' }}>
           <span className="text-xl sm:text-2xl md:text-3xl font-light text-text-secondary tracking-wide">
@@ -114,12 +122,30 @@ export default function Hero() {
         </div>
 
         {/* Description */}
-        <p className="animate-fade-in-up max-w-2xl mx-auto text-lg text-text-muted mb-12 leading-relaxed" style={{ animationDelay: '0.6s' }}>
+        <p className="animate-fade-in-up max-w-2xl mx-auto text-lg text-text-muted mb-8 leading-relaxed" style={{ animationDelay: '0.6s' }}>
           11+ years of experience working as a full stack web application developer handling 
           development to deployment. Proven ability to use innovative methods for processing and 
           troubleshooting problems, providing cost-effective solutions. Passionate about learning 
           and quickly implementing new technologies as required.
         </p>
+
+        {/* AI/ML Highlight Pills */}
+        <div className="animate-fade-in-up flex flex-wrap justify-center gap-3 mb-12" style={{ animationDelay: '0.7s' }}>
+          {[
+            { icon: 'fa-brain', text: 'Deep Learning & Neural Networks' },
+            { icon: 'fa-robot', text: 'LLMs & Transformers' },
+            { icon: 'fa-eye', text: 'Computer Vision (YOLOv8)' },
+            { icon: 'fa-comments', text: 'NLP & Sentiment Analysis' },
+          ].map((item) => (
+            <span
+              key={item.text}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-light bg-primary/10 border border-primary/20 rounded-full hover:bg-primary/20 hover:border-primary/40 transition-all duration-300"
+            >
+              <i className={`fas ${item.icon} text-xs`}></i>
+              {item.text}
+            </span>
+          ))}
+        </div>
 
         {/* CTA Buttons */}
         <div className="animate-fade-in-up flex flex-col sm:flex-row items-center justify-center gap-4" style={{ animationDelay: '0.8s' }}>
@@ -137,7 +163,7 @@ export default function Hero() {
         {/* Stats */}
         <div className="animate-fade-in-up mt-20 grid grid-cols-2 sm:grid-cols-4 gap-8" style={{ animationDelay: '1s' }}>
           {[
-            { value: '11+', label: 'Years Experience' },
+            { value: '11+', label: 'Years Full Stack' },
             { value: '32K+', label: 'Dollars Saved' },
             { value: '50+', label: 'Projects Delivered' },
             { value: 'IIT', label: 'AI/ML Certified' },
