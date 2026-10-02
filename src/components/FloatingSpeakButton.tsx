@@ -16,14 +16,13 @@ I've received several accolades including Client Service Appreciation for revers
 
 Feel free to explore my portfolio to learn more about my projects, skills, and experience. Let's connect and build something amazing together!`;
 
-interface FloatingSpeakButtonProps {
-  modelReady: boolean;
-}
-
-export default function FloatingSpeakButton({ modelReady }: FloatingSpeakButtonProps) {
+export default function FloatingSpeakButton() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [modelReady, setModelReady] = useState(false);
   
   const synthesizerRef = useRef<any>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -36,10 +35,8 @@ export default function FloatingSpeakButton({ modelReady }: FloatingSpeakButtonP
     // Initialize audio context
     audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     
-    // Load the synthesizer once model is ready
-    if (modelReady) {
-      loadSynthesizer();
-    }
+    // Start loading model in background
+    loadModelInBackground();
     
     return () => {
       if (sourceNodeRef.current) {
@@ -53,59 +50,108 @@ export default function FloatingSpeakButton({ modelReady }: FloatingSpeakButtonP
         audioContextRef.current.close();
       }
     };
-  }, [modelReady]);
+  }, []);
 
-  const loadSynthesizer = async () => {
-    if (synthesizerRef.current) return;
-    
+  const loadModelInBackground = async () => {
     try {
+      setIsLoading(true);
+      setLoadProgress(0);
+      
+      console.log('Starting to load neural TTS model...');
+      
       const { pipeline } = await import('@huggingface/transformers');
+      
+      console.log('Transformers library loaded, downloading model...');
+      setLoadProgress(10);
       
       synthesizerRef.current = await pipeline(
         'text-to-speech',
         'Xenova/speecht5_tts',
         {
-          // Model is already cached from the loading screen
+          progress_callback: (progress: any) => {
+            console.log('Model progress:', progress);
+            if (progress.status === 'downloading') {
+              const percent = progress.progress ? Math.round(progress.progress) : 0;
+              setLoadProgress(10 + (percent * 0.8)); // 10-90%
+            } else if (progress.status === 'loading') {
+              setLoadProgress(95);
+            } else if (progress.status === 'ready') {
+              setLoadProgress(100);
+              setIsLoading(false);
+              setModelReady(true);
+              console.log('Neural TTS model ready!');
+            }
+          }
         }
       );
+      
+      setLoadProgress(100);
+      setIsLoading(false);
+      setModelReady(true);
+      console.log('Neural TTS model loaded successfully!');
     } catch (error) {
-      console.error('Failed to initialize synthesizer:', error);
+      console.error('Failed to load neural TTS model:', error);
+      setIsLoading(false);
+      setLoadProgress(0);
     }
   };
 
   const speak = async () => {
+    console.log('Speak function called');
+    console.log('Model ready:', modelReady);
+    console.log('Synthesizer:', synthesizerRef.current);
+    
     if (!synthesizerRef.current) {
-      console.error('Synthesizer not ready');
+      console.error('Synthesizer not ready yet');
+      alert('Neural TTS model is still loading. Please wait a moment.');
       return;
     }
     
+    if (!audioContextRef.current) {
+      console.error('Audio context not initialized');
+      return;
+    }
+    
+    // Resume audio context if suspended (browser autoplay policy)
+    if (audioContextRef.current.state === 'suspended') {
+      console.log('Resuming audio context...');
+      await audioContextRef.current.resume();
+    }
+    
     try {
+      console.log('Generating speech with neural network...');
       setIsSpeaking(true);
       setIsPaused(false);
       
-      // Generate speech using neural network
       const output = await synthesizerRef.current(portfolioSummary, {
         speaker_embeddings: new Float32Array(512).fill(0),
       });
       
-      // Convert to audio buffer and play
-      const audioBuffer = await audioContextRef.current!.decodeAudioData(output.audio.buffer);
+      console.log('Speech generated, decoding audio...');
+      
+      const audioBuffer = await audioContextRef.current.decodeAudioData(output.audio.buffer);
       audioBufferRef.current = audioBuffer;
       
+      console.log('Playing audio...');
       playAudio();
     } catch (error) {
       console.error('Speech generation failed:', error);
       setIsSpeaking(false);
+      alert('Failed to generate speech. Check console for details.');
     }
   };
 
   const playAudio = () => {
-    if (!audioBufferRef.current || !audioContextRef.current) return;
+    if (!audioBufferRef.current || !audioContextRef.current) {
+      console.error('Audio buffer or context not available');
+      return;
+    }
     
     const source = audioContextRef.current.createBufferSource();
     source.buffer = audioBufferRef.current;
     source.connect(audioContextRef.current.destination);
     source.onended = () => {
+      console.log('Audio playback ended');
       setIsSpeaking(false);
       setIsPaused(false);
     };
@@ -113,6 +159,7 @@ export default function FloatingSpeakButton({ modelReady }: FloatingSpeakButtonP
     source.start(0, pauseTimeRef.current);
     startTimeRef.current = audioContextRef.current.currentTime - pauseTimeRef.current;
     sourceNodeRef.current = source;
+    console.log('Audio playback started');
   };
 
   const pause = () => {
@@ -120,12 +167,14 @@ export default function FloatingSpeakButton({ modelReady }: FloatingSpeakButtonP
       pauseTimeRef.current = audioContextRef.current.currentTime - startTimeRef.current;
       sourceNodeRef.current.stop();
       setIsPaused(true);
+      console.log('Audio paused at:', pauseTimeRef.current);
     }
   };
 
   const resume = () => {
     setIsPaused(false);
     playAudio();
+    console.log('Audio resumed');
   };
 
   const stop = () => {
@@ -140,32 +189,45 @@ export default function FloatingSpeakButton({ modelReady }: FloatingSpeakButtonP
     pauseTimeRef.current = 0;
     setIsSpeaking(false);
     setIsPaused(false);
+    console.log('Audio stopped');
   };
 
   const handleClick = async () => {
-    if (!isSpeaking) {
+    console.log('Button clicked, current state:', { isSpeaking, isPaused, modelReady, isLoading });
+    
+    if (!isSpeaking && !isLoading) {
       await speak();
+    } else if (isSpeaking && !isPaused) {
+      pause();
     } else if (isPaused) {
       resume();
-    } else {
-      pause();
     }
   };
-
-  // Don't render if model isn't ready yet
-  if (!modelReady) return null;
 
   return (
     <>
       {/* Floating Button with Label */}
       <div className="fixed bottom-8 left-8 z-50 flex items-center gap-3">
         {/* Tooltip */}
-        {showTooltip && !isSpeaking && (
+        {showTooltip && (
           <div className="absolute bottom-full left-0 mb-3 px-4 py-2.5 bg-dark-card border border-dark-border rounded-lg shadow-xl animate-fade-in whitespace-nowrap">
-            <p className="text-sm text-text-primary font-medium">
-              🧠 AI-Powered Portfolio Summary
-            </p>
-            <p className="text-xs text-text-muted mt-1">Powered by SpeechT5 Transformer</p>
+            {isLoading ? (
+              <>
+                <p className="text-sm text-text-primary font-medium">
+                  🧠 Loading Neural TTS Engine
+                </p>
+                <p className="text-xs text-text-muted mt-1">
+                  SpeechT5 Transformer: {Math.round(loadProgress)}%
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-text-primary font-medium">
+                  🧠 AI-Powered Portfolio Summary
+                </p>
+                <p className="text-xs text-text-muted mt-1">Powered by SpeechT5 Transformer</p>
+              </>
+            )}
             <div className="absolute bottom-0 left-6 w-2 h-2 bg-dark-card border-r border-b border-dark-border rotate-45 -translate-y-1"></div>
           </div>
         )}
@@ -187,14 +249,23 @@ export default function FloatingSpeakButton({ modelReady }: FloatingSpeakButtonP
             onClick={handleClick}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
+            disabled={isLoading}
             className={`relative w-14 h-14 rounded-full flex items-center justify-center text-white transition-all duration-300 shadow-lg ${
-              isSpeaking && !isPaused
+              isLoading
+                ? 'bg-gradient-to-br from-gray-600 to-gray-700 cursor-wait shadow-gray-500/20'
+                : isSpeaking && !isPaused
                 ? 'bg-gradient-to-br from-primary to-accent animate-neural-pulse shadow-primary/40'
                 : isPaused
                 ? 'bg-gradient-to-br from-amber-500 to-orange-500 shadow-amber-500/30'
                 : 'bg-gradient-to-br from-primary to-accent hover:scale-110 shadow-primary/30 hover:shadow-primary/50'
             }`}
-            aria-label={isSpeaking ? (isPaused ? 'Resume speaking' : 'Pause speaking') : 'Listen to portfolio summary'}
+            aria-label={
+              isLoading 
+                ? 'Loading neural TTS model' 
+                : isSpeaking 
+                ? (isPaused ? 'Resume speaking' : 'Pause speaking') 
+                : 'Listen to portfolio summary'
+            }
           >
             {/* Pulse rings when speaking */}
             {isSpeaking && !isPaused && (
@@ -204,28 +275,40 @@ export default function FloatingSpeakButton({ modelReady }: FloatingSpeakButtonP
               </>
             )}
 
+            {/* Loading spinner */}
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              </div>
+            )}
+
             {/* Speaker Icon */}
-            <i className={`fas ${
-              isSpeaking && !isPaused 
-                ? 'fa-volume-up' 
-                : isPaused 
-                ? 'fa-pause' 
-                : 'fa-volume-up'
-            } text-lg relative z-10`}></i>
+            {!isLoading && (
+              <i className={`fas ${
+                isSpeaking && !isPaused 
+                  ? 'fa-volume-up' 
+                  : isPaused 
+                  ? 'fa-pause' 
+                  : 'fa-volume-up'
+              } text-lg relative z-10`}></i>
+            )}
           </button>
 
           {/* Label */}
           <button
             onClick={handleClick}
+            disabled={isLoading}
             className={`px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-300 ${
-              isSpeaking && !isPaused
+              isLoading
+                ? 'bg-dark-card border border-dark-border text-text-muted cursor-wait'
+                : isSpeaking && !isPaused
                 ? 'bg-primary/20 text-primary-light border border-primary/30'
                 : isPaused
                 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                 : 'bg-dark-card border border-dark-border text-text-secondary hover:text-primary-light hover:border-primary/30 hover:bg-dark-elevated'
             }`}
           >
-            {isSpeaking && !isPaused ? 'Speaking...' : isPaused ? 'Paused' : 'Summarize'}
+            {isLoading ? `Loading ${Math.round(loadProgress)}%` : isSpeaking && !isPaused ? 'Speaking...' : isPaused ? 'Paused' : 'Summarize'}
           </button>
         </div>
       </div>
