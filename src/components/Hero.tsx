@@ -127,10 +127,8 @@ export default function Hero() {
 
         {/* Description */}
         <p className="animate-fade-in-up max-w-2xl mx-auto text-lg text-text-muted mb-8 leading-relaxed" style={{ animationDelay: '0.6s' }}>
-          11+ years of experience working as a full stack web application developer handling 
-          development to deployment. Proven ability to use innovative methods for processing and 
-          troubleshooting problems, providing cost-effective solutions. Passionate about learning 
-          and quickly implementing new technologies as required.
+          Full-stack web developer with 11+ years of end-to-end experience. 
+          I solve problems efficiently, build scalable solutions, and adapt quickly to new technologies.
         </p>
 
         {/* AI/ML Highlight Pills */}
