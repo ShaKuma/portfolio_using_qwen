@@ -1,4 +1,6 @@
 import { useInView } from '../hooks/useInView';
+import AnimatedTerminal from './AnimatedTerminal';
+import FloatingParticles from './FloatingParticles';
 
 export default function About() {
   const { ref: sectionRef, isInView } = useInView();
@@ -28,41 +30,8 @@ export default function About() {
               {/* Glow effect */}
               <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 to-accent/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
               
-              <div className="relative glass-card rounded-2xl overflow-hidden">
-                {/* Terminal header */}
-                <div className="flex items-center gap-2 px-5 py-3.5 border-b border-dark-border/50 bg-dark-surface/50">
-                  <div className="flex gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
-                  </div>
-                  <span className="text-xs text-text-muted ml-2 font-mono">about.tsx</span>
-                </div>
-                
-                {/* Code content */}
-                <div className="p-6 font-mono text-sm leading-relaxed">
-                  <div className="text-text-muted">
-                    <span className="text-primary-light">interface</span>{' '}
-                    <span className="text-accent">Developer</span> {'{'}
-                  </div>
-                  <div className="pl-4 space-y-1.5 mt-2">
-                    <p><span className="text-accent">name</span>: <span className="text-green-400">"Shashi Kumar"</span>;</p>
-                    <p><span className="text-accent">role</span>: <span className="text-green-400">"Full Stack Developer"</span>;</p>
-                    <p><span className="text-accent">experience</span>: <span className="text-amber-400">11</span>+ years;</p>
-                    <p><span className="text-accent">location</span>: <span className="text-green-400">"Noida, India"</span>;</p>
-                    <p className="pt-2"><span className="text-accent">skills</span>: <span className="text-primary-light">string</span>[] = [</p>
-                    <div className="pl-4">
-                      <p className="text-green-400">"ASP.NET, C#, ReactJS",</p>
-                      <p className="text-green-400">"SQL Server, Web APIs",</p>
-                      <p className="text-green-400">"Jenkins, Kafka, Docker",</p>
-                      <p className="text-green-400">"Python, AI/ML, LLMs"</p>
-                    </div>
-                    <p>];</p>
-                    <p className="pt-2"><span className="text-accent">motto</span> = <span className="text-green-400">"Innovate. Automate. Deliver."</span>;</p>
-                  </div>
-                  <div className="text-text-muted mt-2">{'}'}</div>
-                </div>
-              </div>
+              {/* Animated Terminal */}
+              <AnimatedTerminal />
             </div>
           </div>
 
@@ -84,16 +53,22 @@ export default function About() {
               </p>
 
               {/* AI/ML Capabilities Highlight */}
-              <div className="mt-6 p-5 rounded-xl bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                    <i className="fas fa-brain text-white"></i>
-                  </div>
-                  <div>
-                    <h4 className="text-base font-bold text-text-primary">AI/ML Expertise</h4>
-                    <p className="text-xs text-text-muted">IIT Delhi Certified • 6 Months Intensive Program</p>
-                  </div>
+              <div className="mt-6 p-5 rounded-xl bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20 relative overflow-hidden">
+                {/* Floating particles background */}
+                <div className="absolute inset-0">
+                  <FloatingParticles />
                 </div>
+                
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center animate-pulse">
+                      <i className="fas fa-brain text-white"></i>
+                    </div>
+                    <div>
+                      <h4 className="text-base font-bold text-text-primary">AI/ML Expertise</h4>
+                      <p className="text-xs text-text-muted">IIT Delhi Certified • 6 Months Intensive Program</p>
+                    </div>
+                  </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="flex items-start gap-2">
                     <i className="fas fa-check-circle text-green-400 mt-0.5 flex-shrink-0 text-xs"></i>
@@ -119,6 +94,7 @@ export default function About() {
                     <i className="fas fa-check-circle text-green-400 mt-0.5 flex-shrink-0 text-xs"></i>
                     <span className="text-text-secondary">Hugging Face Ecosystem</span>
                   </div>
+                </div>
                 </div>
               </div>
               

@@ -1,4 +1,5 @@
 import { useInView } from '../hooks/useInView';
+import DataFlowAnimation from './DataFlowAnimation';
 
 const skillCategories = [
   {
@@ -87,18 +88,26 @@ export default function Skills() {
           {skillCategories.map((category, index) => (
             <div
               key={category.title}
-              className={`glass-card card-glow rounded-2xl p-6 lg:p-8 reveal ${gridVisible ? 'visible' : ''}`}
+              className={`glass-card card-glow rounded-2xl p-6 lg:p-8 reveal ${gridVisible ? 'visible' : ''} relative overflow-hidden`}
               style={{ transitionDelay: `${index * 0.15}s` }}
             >
-              <div className="flex items-center gap-4 mb-8">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.gradient} flex items-center justify-center shadow-lg`}>
-                  <i className={`fas ${category.icon} text-white text-lg`}></i>
+              {/* Data flow animation for AI/ML category */}
+              {category.title === 'AI / Machine Learning' && (
+                <div className="absolute inset-0 opacity-20">
+                  <DataFlowAnimation />
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-text-primary">{category.title}</h3>
-                  <p className="text-xs text-text-muted">{category.skills.length} technologies</p>
+              )}
+              
+              <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.gradient} flex items-center justify-center shadow-lg`}>
+                    <i className={`fas ${category.icon} text-white text-lg`}></i>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-text-primary">{category.title}</h3>
+                    <p className="text-xs text-text-muted">{category.skills.length} technologies</p>
+                  </div>
                 </div>
-              </div>
               <div className="space-y-5">
                 {category.skills.map((skill, skillIndex) => (
                   <div key={skill.name}>
@@ -117,6 +126,7 @@ export default function Skills() {
                     </div>
                   </div>
                 ))}
+              </div>
               </div>
             </div>
           ))}

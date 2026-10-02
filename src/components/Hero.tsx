@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import NeuralNetworkBackground from './NeuralNetworkBackground';
 
 const roles = ['Full Stack Developer', 'AI/ML Enthusiast', 'Cloud Engineer', 'Tech Lead'];
 
@@ -49,6 +50,9 @@ export default function Hero() {
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center hero-gradient overflow-hidden noise-bg pt-20">
+      {/* Neural Network Animation */}
+      <NeuralNetworkBackground />
+      
       {/* Animated background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
@@ -107,8 +111,8 @@ export default function Hero() {
 
         {/* AI/ML Badge */}
         <div className="animate-fade-in-up mb-6" style={{ animationDelay: '0.3s' }}>
-          <span className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-primary to-accent rounded-full shadow-lg shadow-primary/30">
-            <i className="fas fa-robot"></i>
+          <span className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-primary to-accent rounded-full shadow-lg shadow-primary/30 animate-neural-pulse">
+            <i className="fas fa-robot animate-glow-pulse"></i>
             AI/ML Engineer • IIT Delhi Certified
           </span>
         </div>
