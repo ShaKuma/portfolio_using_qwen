@@ -72,6 +72,14 @@ export default function FloatingSpeakButton() {
           setIsSpeaking(false);
           setIsLoading(false);
           break;
+
+        case 'cleanup':
+          console.log('TTS model cleaned up:', e.data.message);
+          setModelReady(false);
+          setIsLoading(true);
+          setLoadProgress(0);
+          setLoadingMessage('Model unloaded');
+          break;
       }
     };
 
@@ -98,6 +106,11 @@ export default function FloatingSpeakButton() {
   }, []);
 
   const playAudio = (audioData: Float32Array, samplingRate: number) => {
+    // Clean up any existing audio context first
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+    }
+    
     // Create audio context
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     audioContextRef.current = audioContext;
@@ -136,6 +149,12 @@ export default function FloatingSpeakButton() {
       setIsSpeaking(false);
       setIsPaused(false);
       audioSourceRef.current = null;
+      
+      // Clean up audio context to free memory
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+        audioContextRef.current = null;
+      }
     };
     
     source.start();
