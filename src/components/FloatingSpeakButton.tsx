@@ -19,193 +19,161 @@ Feel free to explore my portfolio to learn more about my projects, skills, and e
 export default function FloatingSpeakButton() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [loadProgress, setLoadProgress] = useState(0);
   const [showTooltip, setShowTooltip] = useState(false);
   const [modelReady, setModelReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loadingMessage, setLoadingMessage] = useState('Initializing...');
   
-  const synthesizerRef = useRef<any>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const audioBufferRef = useRef<AudioBuffer | null>(null);
-  const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
-  const startTimeRef = useRef<number>(0);
-  const pauseTimeRef = useRef<number>(0);
+  const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
-    // Initialize audio context
-    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    
-    // Start loading model in background
-    loadModelInBackground();
-    
+    // Create the worker
+    workerRef.current = new Worker(new URL('../tts.worker.ts', import.meta.url), {
+      type: 'module',
+    });
+
+    // Handle messages from the worker
+    const onMessageReceived = (e: MessageEvent) => {
+      console.log('Worker message:', e.data);
+      
+      switch (e.data.status) {
+        case 'loading':
+          setLoadingMessage(e.data.message);
+          setLoadProgress(10);
+          break;
+
+        case 'progress':
+          setLoadProgress(e.data.progress);
+          setLoadingMessage(e.data.message);
+          break;
+
+        case 'ready':
+          console.log('TTS model ready!');
+          setModelReady(true);
+          setIsLoading(false);
+          setLoadProgress(100);
+          setLoadingMessage('Ready');
+          break;
+
+        case 'synthesizing':
+          setLoadingMessage('Generating speech...');
+          break;
+
+        case 'complete':
+          console.log('Speech generated, playing audio...');
+          playAudio(e.data.audio, e.data.sampling_rate);
+          break;
+
+        case 'error':
+          console.error('Worker error:', e.data.message);
+          setError(e.data.message);
+          setIsSpeaking(false);
+          setIsLoading(false);
+          break;
+      }
+    };
+
+    const onErrorReceived = (e: ErrorEvent) => {
+      console.error('Worker error:', e);
+      setError(e.message);
+      setIsLoading(false);
+    };
+
+    workerRef.current.addEventListener('message', onMessageReceived);
+    workerRef.current.addEventListener('error', onErrorReceived);
+
+    // Initialize the worker
+    workerRef.current.postMessage({ type: 'init' });
+
     return () => {
-      if (sourceNodeRef.current) {
-        try {
-          sourceNodeRef.current.stop();
-        } catch (e) {
-          // Ignore
-        }
-      }
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-        audioContextRef.current.close();
-      }
+      workerRef.current?.removeEventListener('message', onMessageReceived);
+      workerRef.current?.removeEventListener('error', onErrorReceived);
+      workerRef.current?.terminate();
     };
   }, []);
 
-  // Log progress changes for debugging
-  useEffect(() => {
-    console.log(`Load progress updated: ${loadProgress}%`);
-  }, [loadProgress]);
-
-  const loadModelInBackground = async () => {
-    try {
-      setIsLoading(true);
-      setLoadProgress(0);
-      
-      console.log('Starting to load neural TTS model...');
-      
-      const { pipeline } = await import('@huggingface/transformers');
-      
-      console.log('Transformers library loaded, downloading model...');
-      setLoadProgress(10);
-      
-      // Use MMS-TTS model which works without speaker embeddings
-      synthesizerRef.current = await pipeline(
-        'text-to-speech',
-        'Xenova/mms-tts-eng',
-        {
-          progress_callback: (progress: any) => {
-            console.log('Model progress:', progress);
-            
-            if (progress.status === 'progress' || progress.status === 'downloading') {
-              const percent = progress.progress ? Math.round(progress.progress) : 0;
-              const mappedProgress = 10 + (percent * 0.8); // 10-90%
-              console.log(`Download progress: ${percent}% → Mapped: ${mappedProgress}%`);
-              setLoadProgress(mappedProgress);
-            } else if (progress.status === 'loading') {
-              console.log('Loading model into memory...');
-              setLoadProgress(95);
-            } else if (progress.status === 'ready' || progress.status === 'done') {
-              console.log('Neural TTS model ready!');
-              setLoadProgress(100);
-              setIsLoading(false);
-              setModelReady(true);
-            }
-          }
-        }
-      );
-      
-      setLoadProgress(100);
-      setIsLoading(false);
-      setModelReady(true);
-      console.log('Neural TTS model loaded successfully!');
-    } catch (error) {
-      console.error('Failed to load neural TTS model:', error);
-      setIsLoading(false);
-      setLoadProgress(0);
-    }
-  };
-
-  const speak = async () => {
-    console.log('Speak function called');
-    console.log('Model ready:', modelReady);
-    console.log('Synthesizer:', synthesizerRef.current);
+  const playAudio = (audioData: Float32Array, samplingRate: number) => {
+    // Create audio context
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    audioContextRef.current = audioContext;
     
-    if (!synthesizerRef.current) {
-      console.error('Synthesizer not ready yet');
-      alert('Neural TTS model is still loading. Please wait a moment.');
-      return;
-    }
+    // Create audio buffer
+    const audioBuffer = audioContext.createBuffer(1, audioData.length, samplingRate);
+    audioBuffer.getChannelData(0).set(audioData);
     
-    if (!audioContextRef.current) {
-      console.error('Audio context not initialized');
-      return;
-    }
+    // Create source and play
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioContext.destination);
+    audioSourceRef.current = source;
     
-    // Resume audio context if suspended (browser autoplay policy)
-    if (audioContextRef.current.state === 'suspended') {
-      console.log('Resuming audio context...');
-      await audioContextRef.current.resume();
-    }
-    
-    try {
-      console.log('Generating speech with neural network...');
-      setIsSpeaking(true);
-      setIsPaused(false);
-      
-      // Generate speech - let the model use default speaker embeddings
-      const output = await synthesizerRef.current(portfolioSummary);
-      
-      console.log('Speech generated, decoding audio...');
-      
-      const audioBuffer = await audioContextRef.current.decodeAudioData(output.audio.buffer);
-      audioBufferRef.current = audioBuffer;
-      
-      console.log('Playing audio...');
-      playAudio();
-    } catch (error) {
-      console.error('Speech generation failed:', error);
-      setIsSpeaking(false);
-      alert('Failed to generate speech. Check console for details.');
-    }
-  };
-
-  const playAudio = () => {
-    if (!audioBufferRef.current || !audioContextRef.current) {
-      console.error('Audio buffer or context not available');
-      return;
-    }
-    
-    const source = audioContextRef.current.createBufferSource();
-    source.buffer = audioBufferRef.current;
-    source.connect(audioContextRef.current.destination);
     source.onended = () => {
-      console.log('Audio playback ended');
       setIsSpeaking(false);
       setIsPaused(false);
+      audioSourceRef.current = null;
     };
     
-    source.start(0, pauseTimeRef.current);
-    startTimeRef.current = audioContextRef.current.currentTime - pauseTimeRef.current;
-    sourceNodeRef.current = source;
-    console.log('Audio playback started');
+    source.start();
+    setIsSpeaking(true);
+    setIsPaused(false);
   };
 
-  const pause = () => {
-    if (sourceNodeRef.current && audioContextRef.current) {
-      pauseTimeRef.current = audioContextRef.current.currentTime - startTimeRef.current;
-      sourceNodeRef.current.stop();
-      setIsPaused(true);
-      console.log('Audio paused at:', pauseTimeRef.current);
+  const speak = () => {
+    if (!modelReady || !workerRef.current) {
+      console.error('Model not ready');
+      return;
     }
+
+    console.log('Requesting speech generation...');
+    setIsSpeaking(true);
+    setLoadingMessage('Generating speech...');
+    
+    workerRef.current.postMessage({
+      type: 'synthesize',
+      text: portfolioSummary,
+    });
+  };
+
+  const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  const pause = () => {
+    // Note: Web Audio API doesn't support pause/resume directly
+    // We'll stop and would need to regenerate to resume
+    // For now, just stop
+    if (audioSourceRef.current) {
+      audioSourceRef.current.stop();
+      audioSourceRef.current = null;
+    }
+    setIsPaused(true);
   };
 
   const resume = () => {
-    setIsPaused(false);
-    playAudio();
-    console.log('Audio resumed');
+    // Can't resume with Web Audio API, would need to regenerate
+    // For now, just restart
+    if (isPaused) {
+      speak();
+    }
   };
 
   const stop = () => {
-    if (sourceNodeRef.current) {
-      try {
-        sourceNodeRef.current.stop();
-      } catch (e) {
-        // Ignore
-      }
-      sourceNodeRef.current = null;
+    if (audioSourceRef.current) {
+      audioSourceRef.current.stop();
+      audioSourceRef.current = null;
     }
-    pauseTimeRef.current = 0;
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
     setIsSpeaking(false);
     setIsPaused(false);
-    console.log('Audio stopped');
   };
 
-  const handleClick = async () => {
-    console.log('Button clicked, current state:', { isSpeaking, isPaused, modelReady, isLoading });
-    
+  const handleClick = () => {
     if (!isSpeaking && !isLoading) {
-      await speak();
+      speak();
     } else if (isSpeaking && !isPaused) {
       pause();
     } else if (isPaused) {
@@ -226,7 +194,7 @@ export default function FloatingSpeakButton() {
               </div>
               <div className="flex-1">
                 <p className="text-xs font-semibold text-text-primary">Loading Neural TTS</p>
-                <p className="text-[10px] text-text-muted">MMS-TTS Transformer</p>
+                <p className="text-[10px] text-text-muted">{loadingMessage}</p>
               </div>
               <span className="text-xs font-bold text-primary-light">{Math.round(loadProgress)}%</span>
             </div>
@@ -241,13 +209,20 @@ export default function FloatingSpeakButton() {
           </div>
         )}
 
+        {/* Error message */}
+        {error && (
+          <div className="absolute bottom-full left-0 mb-3 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg shadow-xl min-w-[220px]">
+            <p className="text-xs text-red-400">Error: {error}</p>
+          </div>
+        )}
+
         {/* Tooltip (shows on hover when not loading) */}
-        {showTooltip && !isLoading && (
+        {showTooltip && !isLoading && !error && (
           <div className="absolute bottom-full left-0 mb-3 px-4 py-2.5 bg-dark-card border border-dark-border rounded-lg shadow-xl animate-fade-in whitespace-nowrap">
             <p className="text-sm text-text-primary font-medium">
               🧠 AI-Powered Portfolio Summary
             </p>
-            <p className="text-xs text-text-muted mt-1">Powered by MMS-TTS Transformer</p>
+            <p className="text-xs text-text-muted mt-1">Powered by OuteTTS + WebGPU</p>
             <div className="absolute bottom-0 left-6 w-2 h-2 bg-dark-card border-r border-b border-dark-border rotate-45 -translate-y-1"></div>
           </div>
         )}
@@ -269,10 +244,10 @@ export default function FloatingSpeakButton() {
             onClick={handleClick}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
-            disabled={isLoading}
+            disabled={isLoading || !!error}
             className={`relative w-14 h-14 rounded-full flex items-center justify-center text-white transition-all duration-300 shadow-lg ${
-              isLoading
-                ? 'bg-gradient-to-br from-gray-600 to-gray-700 cursor-wait shadow-gray-500/20'
+              isLoading || error
+                ? 'bg-gradient-to-br from-gray-600 to-gray-700 cursor-not-allowed shadow-gray-500/20'
                 : isSpeaking && !isPaused
                 ? 'bg-gradient-to-br from-primary to-accent animate-neural-pulse shadow-primary/40'
                 : isPaused
@@ -317,10 +292,10 @@ export default function FloatingSpeakButton() {
           {/* Label */}
           <button
             onClick={handleClick}
-            disabled={isLoading}
+            disabled={isLoading || !!error}
             className={`px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-300 ${
-              isLoading
-                ? 'bg-dark-card border border-dark-border text-text-muted cursor-wait'
+              isLoading || error
+                ? 'bg-dark-card border border-dark-border text-text-muted cursor-not-allowed'
                 : isSpeaking && !isPaused
                 ? 'bg-primary/20 text-primary-light border border-primary/30'
                 : isPaused
@@ -328,7 +303,7 @@ export default function FloatingSpeakButton() {
                 : 'bg-dark-card border border-dark-border text-text-secondary hover:text-primary-light hover:border-primary/30 hover:bg-dark-elevated'
             }`}
           >
-            {isLoading ? `Loading ${Math.round(loadProgress)}%` : isSpeaking && !isPaused ? 'Speaking...' : isPaused ? 'Paused' : 'Summarize'}
+            {isLoading ? `Loading ${Math.round(loadProgress)}%` : error ? 'Error' : isSpeaking && !isPaused ? 'Speaking...' : isPaused ? 'Paused' : 'Summarize'}
           </button>
         </div>
       </div>
