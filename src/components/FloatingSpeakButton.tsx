@@ -16,6 +16,29 @@ I've received several accolades including Client Service Appreciation for revers
 
 Feel free to explore my portfolio to learn more about my projects, skills, and experience. Let's connect and build something amazing together!`;
 
+// Split text into chunks (sentences) for streaming
+function splitTextIntoChunks(text: string, maxLength: number = 200): string[] {
+  const chunks: string[] = [];
+  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+  
+  let currentChunk = '';
+  
+  for (const sentence of sentences) {
+    if ((currentChunk + sentence).length > maxLength && currentChunk.length > 0) {
+      chunks.push(currentChunk.trim());
+      currentChunk = sentence;
+    } else {
+      currentChunk += sentence;
+    }
+  }
+  
+  if (currentChunk.trim().length > 0) {
+    chunks.push(currentChunk.trim());
+  }
+  
+  return chunks;
+}
+
 export default function FloatingSpeakButton() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -25,8 +48,110 @@ export default function FloatingSpeakButton() {
   const [modelReady, setModelReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState('Initializing...');
+  const [currentChunk, setCurrentChunk] = useState(0);
+  const [totalChunks, setTotalChunks] = useState(0);
   
   const workerRef = useRef<Worker | null>(null);
+  const audioQueueRef = useRef<Array<{ audio: Float32Array; sampling_rate: number }>>([]);
+  const chunksRef = useRef<string[]>([]);
+  const nextChunkToRequestRef = useRef(0);
+  const isPlayingRef = useRef(false);
+  const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const speakTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Request next chunk from worker
+  const requestNextChunk = () => {
+    if (nextChunkToRequestRef.current < chunksRef.current.length && workerRef.current) {
+      const chunkIndex = nextChunkToRequestRef.current;
+      const chunkText = chunksRef.current[chunkIndex];
+      
+      console.log(`Requesting chunk ${chunkIndex + 1}/${chunksRef.current.length}`);
+      
+      workerRef.current.postMessage({
+        type: 'synthesize-chunk',
+        text: chunkText,
+        chunkIndex: chunkIndex,
+        totalChunks: chunksRef.current.length
+      });
+      
+      nextChunkToRequestRef.current++;
+    }
+  };
+
+  // Play next chunk from queue
+  const playNextChunk = () => {
+    if (audioQueueRef.current.length === 0) {
+      // No more chunks to play
+      if (nextChunkToRequestRef.current >= chunksRef.current.length) {
+        // All chunks processed and played
+        console.log('All chunks played, stopping');
+        isPlayingRef.current = false;
+        setIsSpeaking(false);
+        setIsPaused(false);
+      }
+      return;
+    }
+
+    isPlayingRef.current = true;
+    const chunk = audioQueueRef.current.shift()!;
+    
+    console.log(`Playing chunk from queue, ${audioQueueRef.current.length} remaining`);
+    
+    // Clean up any existing audio context first
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+    }
+    
+    // Create audio context
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    audioContextRef.current = audioContext;
+    
+    // Create audio buffer
+    const audioBuffer = audioContext.createBuffer(1, chunk.audio.length, chunk.sampling_rate);
+    audioBuffer.getChannelData(0).set(chunk.audio);
+    
+    // Create source and play with slower, more natural pace
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    
+    // Slow down playback for more natural, conversational pace
+    source.playbackRate.value = 0.85;
+    
+    // Add audio processing for more natural sound
+    const lowpass = audioContext.createBiquadFilter();
+    lowpass.type = 'lowpass';
+    lowpass.frequency.value = 3500;
+    lowpass.Q.value = 0.7;
+    
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = 1.1;
+    
+    // Connect: source -> filter -> gain -> destination
+    source.connect(lowpass);
+    lowpass.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    audioSourceRef.current = source;
+    
+    source.onended = () => {
+      console.log('Chunk finished playing');
+      audioSourceRef.current = null;
+      
+      // Clean up audio context
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+        audioContextRef.current = null;
+      }
+      
+      // Play next chunk
+      playNextChunk();
+    };
+    
+    source.start();
+    setIsSpeaking(true);
+    setIsPaused(false);
+  };
 
   useEffect(() => {
     // Create the worker
@@ -57,13 +182,29 @@ export default function FloatingSpeakButton() {
           setLoadingMessage('Ready');
           break;
 
-        case 'synthesizing':
-          setLoadingMessage('Generating speech...');
+        case 'synthesizing-chunk':
+          setLoadingMessage(e.data.message);
+          setCurrentChunk(e.data.chunkIndex + 1);
+          setTotalChunks(e.data.totalChunks);
           break;
 
-        case 'complete':
-          console.log('Speech generated, playing audio...');
-          playAudio(e.data.audio, e.data.sampling_rate);
+        case 'chunk-complete':
+          console.log(`Chunk ${e.data.chunkIndex + 1} received, adding to queue`);
+          // Add chunk to queue
+          audioQueueRef.current.push({
+            audio: e.data.audio,
+            sampling_rate: e.data.sampling_rate
+          });
+          
+          // Start playback if not already playing
+          if (!isPlayingRef.current) {
+            playNextChunk();
+          }
+          
+          // Request next chunk if available
+          if (nextChunkToRequestRef.current < chunksRef.current.length) {
+            requestNextChunk();
+          }
           break;
 
         case 'error':
@@ -105,97 +246,45 @@ export default function FloatingSpeakButton() {
     };
   }, []);
 
-  const playAudio = (audioData: Float32Array, samplingRate: number) => {
-    // Clean up any existing audio context first
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-    }
-    
-    // Create audio context
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    audioContextRef.current = audioContext;
-    
-    // Create audio buffer
-    const audioBuffer = audioContext.createBuffer(1, audioData.length, samplingRate);
-    audioBuffer.getChannelData(0).set(audioData);
-    
-    // Create source and play with slower, more natural pace
-    const source = audioContext.createBufferSource();
-    source.buffer = audioBuffer;
-    
-    // Slow down playback for more natural, conversational pace
-    // 0.85 = 15% slower, sounds more natural without pitch distortion
-    source.playbackRate.value = 0.85;
-    
-    // Add audio processing for more natural sound
-    // Low-pass filter to smooth harsh frequencies
-    const lowpass = audioContext.createBiquadFilter();
-    lowpass.type = 'lowpass';
-    lowpass.frequency.value = 3500;
-    lowpass.Q.value = 0.7;
-    
-    // Slight gain boost for warmth
-    const gainNode = audioContext.createGain();
-    gainNode.gain.value = 1.1;
-    
-    // Connect: source -> filter -> gain -> destination
-    source.connect(lowpass);
-    lowpass.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    audioSourceRef.current = source;
-    
-    source.onended = () => {
-      setIsSpeaking(false);
-      setIsPaused(false);
-      audioSourceRef.current = null;
-      
-      // Clean up audio context to free memory
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-        audioContextRef.current = null;
-      }
-    };
-    
-    source.start();
-    setIsSpeaking(true);
-    setIsPaused(false);
-  };
-
-  const speakTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
   const speak = () => {
     if (!modelReady || !workerRef.current) {
       console.error('Model not ready');
       return;
     }
 
-    console.log('Requesting speech generation...');
+    console.log('Starting streaming speech generation...');
     setIsSpeaking(true);
-    setLoadingMessage('Generating speech...');
+    setLoadingMessage('Preparing speech...');
     setError(null);
     
-    workerRef.current.postMessage({
-      type: 'synthesize',
-      text: portfolioSummary,
-    });
-
+    // Reset queue and chunk tracking
+    audioQueueRef.current = [];
+    nextChunkToRequestRef.current = 0;
+    isPlayingRef.current = false;
+    
+    // Split text into chunks
+    const chunks = splitTextIntoChunks(portfolioSummary, 200);
+    chunksRef.current = chunks;
+    setTotalChunks(chunks.length);
+    
+    console.log(`Split text into ${chunks.length} chunks`);
+    
     // Clear any existing timeout
     if (speakTimeoutRef.current) {
       clearTimeout(speakTimeoutRef.current);
     }
 
-    // Add timeout to prevent infinite loading
+    // Add timeout to prevent infinite loading (per chunk)
     speakTimeoutRef.current = setTimeout(() => {
-      console.warn('Speech generation timeout after 60 seconds');
-      setError('Speech generation is taking too long. This might be due to CPU processing. Please try again or check browser console for details.');
+      console.warn('Speech generation timeout after 120 seconds');
+      setError('Speech generation is taking too long. Please try again.');
       setIsSpeaking(false);
       setLoadingMessage('');
-    }, 60000); // 60 seconds timeout
-  };
+    }, 120000); // 120 seconds total timeout
 
-  const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
+    // Request first chunk immediately
+    requestNextChunk();
+  };
 
   const pause = () => {
     // Note: Web Audio API doesn't support pause/resume directly
@@ -217,6 +306,7 @@ export default function FloatingSpeakButton() {
   };
 
   const stop = () => {
+    // Stop current audio
     if (audioSourceRef.current) {
       audioSourceRef.current.stop();
       audioSourceRef.current = null;
@@ -225,8 +315,23 @@ export default function FloatingSpeakButton() {
       audioContextRef.current.close();
       audioContextRef.current = null;
     }
+    
+    // Clear streaming queue
+    audioQueueRef.current = [];
+    nextChunkToRequestRef.current = 0;
+    isPlayingRef.current = false;
+    chunksRef.current = [];
+    
+    // Clear timeout
+    if (speakTimeoutRef.current) {
+      clearTimeout(speakTimeoutRef.current);
+      speakTimeoutRef.current = null;
+    }
+    
     setIsSpeaking(false);
     setIsPaused(false);
+    setCurrentChunk(0);
+    setTotalChunks(0);
   };
 
   const handleClick = () => {
@@ -267,6 +372,30 @@ export default function FloatingSpeakButton() {
           </div>
         )}
 
+        {/* Streaming Progress Indicator (shows during speech generation) */}
+        {isSpeaking && totalChunks > 0 && (
+          <div className="absolute bottom-full left-0 mb-3 px-4 py-3 bg-dark-card border border-accent/30 rounded-lg shadow-xl animate-fade-in min-w-[220px]">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-accent/20 border border-accent/30 flex items-center justify-center flex-shrink-0">
+                <i className="fas fa-waveform-lines text-accent-light animate-pulse text-sm"></i>
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-semibold text-text-primary">Streaming Speech</p>
+                <p className="text-[10px] text-text-muted">{loadingMessage}</p>
+              </div>
+              <span className="text-xs font-bold text-accent-light">{currentChunk}/{totalChunks}</span>
+            </div>
+            {/* Progress bar */}
+            <div className="w-full h-1.5 bg-dark-bg rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-accent to-primary rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${(currentChunk / totalChunks) * 100}%` }}
+              ></div>
+            </div>
+            <div className="absolute bottom-0 left-6 w-2 h-2 bg-dark-card border-r border-b border-accent/30 rotate-45 -translate-y-1"></div>
+          </div>
+        )}
+
         {/* Error message */}
         {error && (
           <div className="absolute bottom-full left-0 mb-3 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg shadow-xl min-w-[220px]">
@@ -280,7 +409,7 @@ export default function FloatingSpeakButton() {
             <p className="text-sm text-text-primary font-medium">
               🧠 AI-Powered Portfolio Summary
             </p>
-            <p className="text-xs text-text-muted mt-1">Powered by OuteTTS + WebGPU</p>
+            <p className="text-xs text-text-muted mt-1">Streaming Neural TTS • MMS-TTS Model</p>
             <div className="absolute bottom-0 left-6 w-2 h-2 bg-dark-card border-r border-b border-dark-border rotate-45 -translate-y-1"></div>
           </div>
         )}
@@ -361,7 +490,17 @@ export default function FloatingSpeakButton() {
                 : 'bg-dark-card border border-dark-border text-text-secondary hover:text-primary-light hover:border-primary/30 hover:bg-dark-elevated'
             }`}
           >
-            {isLoading ? `Loading ${Math.round(loadProgress)}%` : error ? 'Error' : isSpeaking && !isPaused ? 'Speaking...' : isPaused ? 'Paused' : 'Summarize'}
+            {isLoading 
+              ? `Loading ${Math.round(loadProgress)}%` 
+              : error 
+              ? 'Error' 
+              : isSpeaking && !isPaused && totalChunks > 0
+              ? `Streaming ${currentChunk}/${totalChunks}`
+              : isSpeaking && !isPaused 
+              ? 'Speaking...' 
+              : isPaused 
+              ? 'Paused' 
+              : 'Summarize'}
           </button>
         </div>
       </div>

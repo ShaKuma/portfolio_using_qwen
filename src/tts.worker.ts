@@ -68,14 +68,16 @@ async function loadModel() {
 
 // Handle messages from main thread
 let isProcessing = false;
+let currentChunk = 0;
+let totalChunks = 0;
 
 self.addEventListener('message', async (event) => {
-  const { type, text } = event.data;
+  const { type, text, chunkIndex, totalChunks: total } = event.data;
   
   if (type === 'init') {
     await loadModel();
-  } else if (type === 'synthesize') {
-    // Prevent multiple simultaneous synthesis requests
+  } else if (type === 'synthesize-chunk') {
+    // Streaming synthesis - process one chunk at a time
     if (isProcessing) {
       self.postMessage({ status: 'error', message: 'Already processing, please wait' });
       return;
@@ -87,53 +89,50 @@ self.addEventListener('message', async (event) => {
     }
     
     isProcessing = true;
+    currentChunk = chunkIndex;
+    totalChunks = total;
     lastUsedTime = Date.now();
     
     try {
-      self.postMessage({ status: 'synthesizing', message: 'Generating speech...' });
-      console.log('Starting speech synthesis for text length:', text.length);
+      self.postMessage({ 
+        status: 'synthesizing-chunk', 
+        message: `Generating chunk ${chunkIndex + 1} of ${totalChunks}...`,
+        chunkIndex: chunkIndex,
+        totalChunks: totalChunks
+      });
       
-      // Limit text length to prevent memory issues (max ~1000 characters)
-      const limitedText = text.substring(0, 1000);
-      if (text.length > 1000) {
-        console.warn(`Text truncated from ${text.length} to 1000 characters`);
-      }
+      console.log(`Generating audio for chunk ${chunkIndex + 1}/${totalChunks}:`, text.substring(0, 50) + '...');
       
-      // Generate speech
+      // Generate speech for this chunk
       const startTime = Date.now();
-      const output = await synthesizer(limitedText);
+      const output = await synthesizer(text);
       const endTime = Date.now();
       
-      console.log(`Speech generation complete in ${endTime - startTime}ms`);
+      console.log(`Chunk ${chunkIndex + 1} generated in ${endTime - startTime}ms`);
       
       // Verify output
       if (!output.audio || output.audio.length === 0) {
-        throw new Error('No audio data generated');
-      }
-      
-      // Check audio size (limit to 10MB to prevent memory issues)
-      const audioSizeMB = (output.audio.length * 4) / (1024 * 1024); // Float32 = 4 bytes
-      console.log(`Audio size: ${audioSizeMB.toFixed(2)} MB`);
-      
-      if (audioSizeMB > 10) {
-        throw new Error('Audio too large, please use shorter text');
+        throw new Error('No audio data generated for chunk');
       }
       
       // Transfer audio data to main thread
       self.postMessage({
-        status: 'complete',
+        status: 'chunk-complete',
         audio: output.audio,
         sampling_rate: output.sampling_rate,
+        chunkIndex: chunkIndex,
+        totalChunks: totalChunks
       });
       
       // Clear output reference to free memory
       output.audio = null;
       
     } catch (error: any) {
-      console.error('Synthesis error:', error);
+      console.error('Chunk synthesis error:', error);
       self.postMessage({ 
         status: 'error', 
-        message: error.message || 'Failed to generate speech' 
+        message: error.message || 'Failed to generate speech chunk',
+        chunkIndex: chunkIndex
       });
     } finally {
       isProcessing = false;
