@@ -68,12 +68,12 @@ export default function Projects() {
   const { ref: gridRef, isInView: gridVisible } = useInView();
 
   return (
-    <section id="projects" className="py-24 lg:py-36 relative">
+    <section id="projects" className="py-16 lg:py-24 relative">
       <div className="section-divider"></div>
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         {/* Section Header */}
-        <div ref={headerRef} className={`text-center mb-20 reveal ${headerVisible ? 'visible' : ''}`}>
+        <div ref={headerRef} className={`text-center mb-12 reveal ${headerVisible ? 'visible' : ''}`}>
           <span className="inline-block px-4 py-1.5 text-xs font-semibold tracking-wider uppercase text-primary-light bg-primary/10 rounded-full mb-5 border border-primary/20">
             Portfolio
           </span>
