@@ -48,7 +48,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center hero-gradient overflow-hidden noise-bg">
+    <section id="home" className="relative min-h-screen flex items-center justify-center hero-gradient overflow-hidden noise-bg pt-20">
       {/* Animated background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
