@@ -45,15 +45,6 @@ export default function Footer() {
             <h4 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-5">Connect</h4>
             <div className="flex gap-3">
               <a
-                href="https://github.com/ShaKuma/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-                className="w-10 h-10 rounded-lg bg-dark-card border border-dark-border flex items-center justify-center text-text-muted hover:text-primary-light hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5"
-              >
-                <i className="fab fa-github"></i>
-              </a>
-              <a
                 href="#"
                 aria-label="LinkedIn"
                 className="w-10 h-10 rounded-lg bg-dark-card border border-dark-border flex items-center justify-center text-text-muted hover:text-primary-light hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5"

@@ -107,12 +107,6 @@ export default function Projects() {
                 {/* Hover overlay with links */}
                 <div className="absolute inset-0 bg-dark-bg/80 backdrop-blur-sm flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-400">
                   <a
-                    href={project.github}
-                    className="w-11 h-11 rounded-full bg-dark-card border border-dark-border flex items-center justify-center text-text-secondary hover:text-primary-light hover:border-primary/50 transition-all hover:scale-110"
-                  >
-                    <i className="fab fa-github"></i>
-                  </a>
-                  <a
                     href={project.live}
                     className="w-11 h-11 rounded-full bg-dark-card border border-dark-border flex items-center justify-center text-text-secondary hover:text-primary-light hover:border-primary/50 transition-all hover:scale-110"
                   >
@@ -146,19 +140,7 @@ export default function Projects() {
           ))}
         </div>
 
-        {/* View More */}
-        <div className={`text-center mt-16 reveal ${gridVisible ? 'visible' : ''}`} style={{ transitionDelay: '0.6s' }}>
-          <a
-            href="https://github.com/ShaKuma/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary"
-          >
-            <i className="fab fa-github"></i>
-            View More on GitHub
-            <i className="fas fa-arrow-right text-xs"></i>
-          </a>
-        </div>
+
       </div>
     </section>
   );

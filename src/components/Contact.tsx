@@ -91,15 +91,6 @@ export default function Contact() {
               <h3 className="text-lg font-bold text-text-primary mb-5">Connect With Me</h3>
               <div className="flex gap-3">
                 <a
-                  href="https://github.com/ShaKuma/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="GitHub"
-                  className="w-12 h-12 rounded-xl bg-dark-card border border-dark-border flex items-center justify-center text-text-muted hover:text-white hover:bg-gray-800 hover:border-gray-600 transition-all duration-300 hover:scale-110 hover:-translate-y-1"
-                >
-                  <i className="fab fa-github text-lg"></i>
-                </a>
-                <a
                   href="#"
                   aria-label="LinkedIn"
                   className="w-12 h-12 rounded-xl bg-dark-card border border-dark-border flex items-center justify-center text-text-muted hover:text-white hover:bg-blue-600 hover:border-blue-500 transition-all duration-300 hover:scale-110 hover:-translate-y-1"
