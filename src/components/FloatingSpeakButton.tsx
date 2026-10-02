@@ -106,10 +106,30 @@ export default function FloatingSpeakButton() {
     const audioBuffer = audioContext.createBuffer(1, audioData.length, samplingRate);
     audioBuffer.getChannelData(0).set(audioData);
     
-    // Create source and play
+    // Create source and play with slower, more natural pace
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
-    source.connect(audioContext.destination);
+    
+    // Slow down playback for more natural, conversational pace
+    // 0.85 = 15% slower, sounds more natural without pitch distortion
+    source.playbackRate.value = 0.85;
+    
+    // Add audio processing for more natural sound
+    // Low-pass filter to smooth harsh frequencies
+    const lowpass = audioContext.createBiquadFilter();
+    lowpass.type = 'lowpass';
+    lowpass.frequency.value = 3500;
+    lowpass.Q.value = 0.7;
+    
+    // Slight gain boost for warmth
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = 1.1;
+    
+    // Connect: source -> filter -> gain -> destination
+    source.connect(lowpass);
+    lowpass.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
     audioSourceRef.current = source;
     
     source.onended = () => {
