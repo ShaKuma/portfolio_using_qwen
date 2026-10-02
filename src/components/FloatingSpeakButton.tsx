@@ -69,9 +69,10 @@ export default function FloatingSpeakButton() {
       console.log('Transformers library loaded, downloading model...');
       setLoadProgress(10);
       
+      // Use MMS-TTS model which works without speaker embeddings
       synthesizerRef.current = await pipeline(
         'text-to-speech',
-        'Xenova/speecht5_tts',
+        'Xenova/mms-tts-eng',
         {
           progress_callback: (progress: any) => {
             console.log('Model progress:', progress);
@@ -132,9 +133,8 @@ export default function FloatingSpeakButton() {
       setIsSpeaking(true);
       setIsPaused(false);
       
-      const output = await synthesizerRef.current(portfolioSummary, {
-        speaker_embeddings: new Float32Array(512).fill(0),
-      });
+      // Generate speech - let the model use default speaker embeddings
+      const output = await synthesizerRef.current(portfolioSummary);
       
       console.log('Speech generated, decoding audio...');
       
@@ -226,7 +226,7 @@ export default function FloatingSpeakButton() {
               </div>
               <div className="flex-1">
                 <p className="text-xs font-semibold text-text-primary">Loading Neural TTS</p>
-                <p className="text-[10px] text-text-muted">SpeechT5 Transformer</p>
+                <p className="text-[10px] text-text-muted">MMS-TTS Transformer</p>
               </div>
               <span className="text-xs font-bold text-primary-light">{Math.round(loadProgress)}%</span>
             </div>
@@ -247,7 +247,7 @@ export default function FloatingSpeakButton() {
             <p className="text-sm text-text-primary font-medium">
               🧠 AI-Powered Portfolio Summary
             </p>
-            <p className="text-xs text-text-muted mt-1">Powered by SpeechT5 Transformer</p>
+            <p className="text-xs text-text-muted mt-1">Powered by MMS-TTS Transformer</p>
             <div className="absolute bottom-0 left-6 w-2 h-2 bg-dark-card border-r border-b border-dark-border rotate-45 -translate-y-1"></div>
           </div>
         )}
