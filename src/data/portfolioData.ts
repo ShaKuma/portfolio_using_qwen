@@ -97,6 +97,16 @@ export const projects = [
     description: "Background window service for auto-refreshing members list in database based on Active Directory changes using LDAP Protocol. Saved $32K quarterly.",
     tags: ["C#", "LDAP", "Threading", "Data Structures"],
   },
+  {
+    title: "Insta Quote - Insurance App",
+    description: "Android prototype for insurance domain — scanning barcodes to fetch product details and searching best insurance policies. Won Hackathon challenge across Cognizant worldwide and moved to real-time implementation.",
+    tags: ["Android SDK", "Java", "Barcode Scanner", "Insurance"],
+  },
+  {
+    title: "LSTM Sales Prediction & NLP",
+    description: "Implemented ANN (LSTM) for future sales prediction. Built text sentiment analysis on Amazon reviews using LSTM. Used Hugging Face transformers for text generation and text-to-speech pipelines.",
+    tags: ["Python", "TensorFlow", "LSTM", "Hugging Face", "NLP"],
+  },
 ];
 
 export const achievements = [
@@ -109,35 +119,31 @@ export const achievements = [
 export function generateChatbotContext(): string {
   const skillsText = Object.entries(skills)
     .map(([category, items]) => {
-      const skillList = items.map(s => `${s.name} (${s.level}%)`).join(", ");
+      const skillList = items.map(s => `${s.name}`).join(", ");
       return `${category}: ${skillList}`;
     })
     .join("\n");
 
   const projectsText = projects
-    .map(p => `- ${p.title}: ${p.description}`)
+    .map(p => `- ${p.title}`)
     .join("\n");
 
   const experienceText = [
     `${currentRole.title} at ${currentRole.company} (${currentRole.period})`,
-    ...currentRole.achievements.map(a => `  • ${a}`),
-    "",
-    ...previousExperience.map(exp => 
-      `${exp.title} at ${exp.company} (${exp.period})\n${exp.achievements.map(a => `  • ${a}`).join("\n")}`
-    ),
+    ...previousExperience.map(exp => `${exp.title} at ${exp.company} (${exp.period})`),
   ].join("\n");
 
-  return `You are an AI assistant that answers questions about Shashi Kumar. Use ONLY the facts below to answer. Be direct and concise.
+  return `You are a helpful AI assistant. Answer questions about Shashi Kumar using ONLY the facts below.
 
-KEY FACTS:
+ABOUT SHASHI:
 - Name: ${personalInfo.name}
-- Experience: 11+ years as full stack developer
-- Current Role: ${currentRole.title} at ${currentRole.company} since ${currentRole.period}
+- Experience: 11+ years full stack developer
+- Current: ${currentRole.title} at ${currentRole.company}
 - Location: ${personalInfo.location}
 - Education: ${personalInfo.education}
-- Certification: ${personalInfo.certification}
+- AI/ML: ${personalInfo.certification}
 
-EXPERIENCE:
+WORK HISTORY:
 ${experienceText}
 
 SKILLS:
@@ -146,18 +152,9 @@ ${skillsText}
 PROJECTS:
 ${projectsText}
 
-ACHIEVEMENTS:
-${achievements.map(a => `- ${a}`).join("\n")}
-
 CONTACT:
 - Email: ${personalInfo.email}
 - Phone: ${personalInfo.phone}
-- LinkedIn: ${personalInfo.linkedin}
-- GitHub: ${personalInfo.github}
 
-RULES:
-1. Answer ONLY based on the facts above
-2. Be direct and concise (1-3 sentences)
-3. If asked about topics not related to Shashi, say "I can only answer questions about Shashi Kumar's professional background."
-4. Do not make up information`;
+IMPORTANT: Answer directly in 1-2 sentences. Do NOT repeat greetings. Do NOT make up information. If you don't know, say "I don't have that information."`;
 }

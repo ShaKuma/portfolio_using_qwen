@@ -72,36 +72,36 @@ export default function Chatbot() {
       // Generate dynamic context from portfolio data
       const SHASHI_CONTEXT = generateChatbotContext();
       
-      // Format conversation for SmolLM2 (no system messages allowed)
-      const conversationHistory = messages
-        .filter(msg => msg.role !== 'assistant' || !msg.content.startsWith("Hi!"))
-        .map(msg => {
-          if (msg.role === 'user') return `Question: ${msg.content}`;
-          return `Answer: ${msg.content}`;
-        })
-        .join('\n\n');
-      
+      // Simplified prompt format to prevent hallucination
       const fullPrompt = `${SHASHI_CONTEXT}
 
-${conversationHistory}
-
-Question: ${userMessage}
-Answer:`;
+Q: ${userMessage}
+A:`;
 
       // Initialize streaming response
       let assistantMessage = '';
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
-      // Generate with streaming
+      // Generate with streaming - lower temperature for more accurate responses
       const output = await generatorRef.current(fullPrompt, {
-        max_new_tokens: 200,
-        temperature: 0.7,
-        top_p: 0.9,
+        max_new_tokens: 150,
+        temperature: 0.3, // Lower temperature for more factual responses
+        top_p: 0.85,
+        top_k: 50,
+        repetition_penalty: 1.2, // Penalize repetition
         do_sample: true,
         callback_function: (output: any) => {
           // Extract the generated text (remove the prompt)
           const generatedText = output[0].generated_text.replace(fullPrompt, '').trim();
-          assistantMessage = generatedText;
+          
+          // Clean up the response - remove any repeated welcome messages
+          let cleanText = generatedText;
+          if (cleanText.toLowerCase().includes('hi!') || cleanText.toLowerCase().includes('hello')) {
+            // Remove greeting if it appears in the middle of response
+            cleanText = cleanText.replace(/^(Hi!|Hello!|Hey!)\s*/i, '').trim();
+          }
+          
+          assistantMessage = cleanText;
           
           // Update the last message with streaming content
           setMessages(prev => {
@@ -113,7 +113,18 @@ Answer:`;
       });
 
       // Final update with complete response
-      const finalText = output[0].generated_text.replace(fullPrompt, '').trim();
+      let finalText = output[0].generated_text.replace(fullPrompt, '').trim();
+      
+      // Clean up final response
+      if (finalText.toLowerCase().includes('hi!') || finalText.toLowerCase().includes('hello')) {
+        finalText = finalText.replace(/^(Hi!|Hello!|Hey!)\s*/i, '').trim();
+      }
+      
+      // If response is empty or just repeats the question, provide a fallback
+      if (!finalText || finalText.length < 10) {
+        finalText = "Based on the information available, I can help you with questions about Shashi's experience, skills, projects, or contact details.";
+      }
+      
       setMessages(prev => {
         const newMessages = [...prev];
         newMessages[newMessages.length - 1] = { role: 'assistant', content: finalText };
