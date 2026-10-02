@@ -183,13 +183,21 @@ export default function Hero() {
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
-        <a href="#about" className="flex flex-col items-center gap-2 text-text-muted hover:text-primary-light transition-colors group">
-          <span className="text-xs font-medium tracking-widest uppercase">Scroll</span>
-          <div className="w-5 h-8 rounded-full border-2 border-current flex items-start justify-center p-1">
-            <div className="w-1 h-2 rounded-full bg-current animate-bounce"></div>
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
+        <button 
+          onClick={() => {
+            const aboutSection = document.getElementById('about');
+            if (aboutSection) {
+              aboutSection.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
+          className="flex flex-col items-center gap-2 text-text-muted hover:text-primary-light transition-all duration-300 group cursor-pointer"
+        >
+          <span className="text-xs font-medium tracking-widest uppercase group-hover:tracking-wider transition-all duration-300">Scroll</span>
+          <div className="w-6 h-10 rounded-full border-2 border-current flex items-start justify-center p-1.5 group-hover:border-primary-light transition-colors">
+            <div className="w-1.5 h-3 rounded-full bg-current animate-bounce"></div>
           </div>
-        </a>
+        </button>
       </div>
     </section>
   );
