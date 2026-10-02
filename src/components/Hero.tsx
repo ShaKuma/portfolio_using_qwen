@@ -10,23 +10,29 @@ export default function Hero() {
 
   useEffect(() => {
     const role = roles[currentRole];
-    const timeout = setTimeout(
-      () => {
-        if (!isDeleting) {
+    
+    const handleTyping = () => {
+      if (!isDeleting) {
+        // Typing
+        if (displayText.length < role.length) {
           setDisplayText(role.slice(0, displayText.length + 1));
-          if (displayText.length === role.length) {
-            setTimeout(() => setIsDeleting(true), 2000);
-          }
         } else {
-          setDisplayText(role.slice(0, displayText.length - 1));
-          if (displayText.length === 0) {
-            setIsDeleting(false);
-            setCurrentRole((prev) => (prev + 1) % roles.length);
-          }
+          // Finished typing, wait then start deleting
+          setTimeout(() => setIsDeleting(true), 2000);
         }
-      },
-      isDeleting ? 40 : 80
-    );
+      } else {
+        // Deleting
+        if (displayText.length > 0) {
+          setDisplayText(role.slice(0, displayText.length - 1));
+        } else {
+          // Finished deleting, move to next role
+          setIsDeleting(false);
+          setCurrentRole((prev) => (prev + 1) % roles.length);
+        }
+      }
+    };
+
+    const timeout = setTimeout(handleTyping, isDeleting ? 50 : 100);
     return () => clearTimeout(timeout);
   }, [displayText, isDeleting, currentRole]);
 
@@ -109,9 +115,10 @@ export default function Hero() {
 
         {/* Description */}
         <p className="animate-fade-in-up max-w-2xl mx-auto text-lg text-text-muted mb-12 leading-relaxed" style={{ animationDelay: '0.6s' }}>
-          11+ years of experience building enterprise AI agent platforms, MCP server ecosystems, 
-          and scalable web applications. Currently architecting organization-wide AI ChatBot systems 
-          with A2A protocols, vector embeddings, and robust security guardrails.
+          11+ years of experience working as a full stack web application developer handling 
+          development to deployment. Proven ability to use innovative methods for processing and 
+          troubleshooting problems, providing cost-effective solutions. Passionate about learning 
+          and quickly implementing new technologies as required.
         </p>
 
         {/* CTA Buttons */}
@@ -132,7 +139,7 @@ export default function Hero() {
           {[
             { value: '11+', label: 'Years Experience' },
             { value: '32K+', label: 'Dollars Saved' },
-            { value: '3', label: 'Companies' },
+            { value: '50+', label: 'Projects Delivered' },
             { value: 'IIT', label: 'AI/ML Certified' },
           ].map((stat, i) => (
             <div key={stat.label} className="text-center group cursor-default" style={{ animationDelay: `${1 + i * 0.1}s` }}>

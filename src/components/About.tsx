@@ -47,18 +47,18 @@ export default function About() {
                   </div>
                   <div className="pl-4 space-y-1.5 mt-2">
                     <p><span className="text-accent">name</span>: <span className="text-green-400">"Shashi Kumar"</span>;</p>
-                    <p><span className="text-accent">title</span>: <span className="text-green-400">"Associate Lead Software Engineer"</span>;</p>
+                    <p><span className="text-accent">role</span>: <span className="text-green-400">"Full Stack Developer"</span>;</p>
+                    <p><span className="text-accent">experience</span>: <span className="text-amber-400">11</span>+ years;</p>
                     <p><span className="text-accent">location</span>: <span className="text-green-400">"Noida, India"</span>;</p>
-                    <p><span className="text-accent">education</span>: <span className="text-green-400">"B.Tech CSE, LPU"</span>;</p>
-                    <p className="pt-2"><span className="text-accent">interests</span>: <span className="text-primary-light">string</span>[] = [</p>
+                    <p className="pt-2"><span className="text-accent">skills</span>: <span className="text-primary-light">string</span>[] = [</p>
                     <div className="pl-4">
-                      <p className="text-green-400">"Full Stack Development",</p>
-                      <p className="text-green-400">"AI & Machine Learning",</p>
-                      <p className="text-green-400">"Cloud Architecture",</p>
-                      <p className="text-green-400">"Process Automation"</p>
+                      <p className="text-green-400">"ASP.NET, C#, ReactJS",</p>
+                      <p className="text-green-400">"SQL Server, Web APIs",</p>
+                      <p className="text-green-400">"Jenkins, Kafka, Docker",</p>
+                      <p className="text-green-400">"Python, AI/ML, LLMs"</p>
                     </div>
                     <p>];</p>
-                    <p className="pt-2"><span className="text-accent">motto</span> = <span className="text-green-400">"Innovate, Automate, Deliver"</span>;</p>
+                    <p className="pt-2"><span className="text-accent">motto</span> = <span className="text-green-400">"Innovate. Automate. Deliver."</span>;</p>
                   </div>
                   <div className="text-text-muted mt-2">{'}'}</div>
                 </div>
@@ -73,25 +73,24 @@ export default function About() {
                 A passionate full-stack engineer with expertise in AI/ML and automation
               </h3>
               <p className="text-text-secondary leading-relaxed text-[15px]">
-                With 11+ years of experience in full-stack development and AI engineering, I currently 
-                architect enterprise-grade AI agent platforms and MCP server ecosystems at FIS. I'm 
-                passionate about building intelligent systems that leverage A2A protocols, vector embeddings, 
-                and multi-model orchestration to solve complex business problems.
+                With 11+ years of experience working as a full stack web application developer, I've 
+                handled everything from development to deployment across multiple enterprise applications. 
+                I have a proven ability to use innovative methods for processing and troubleshooting 
+                problems, providing cost-effective solutions that drive real business value.
               </p>
               <p className="text-text-secondary leading-relaxed text-[15px]">
-                I completed an AI/ML certification from IIT Delhi (6 months) and have built production 
-                systems including organization-wide AI ChatBots, MCP servers for 8+ integrations, 
-                LSTM-based prediction models, and YOLOv8 implementations. My automation work has saved 
-                $32K+ quarterly, and I specialize in implementing OWASP-compliant security guardrails 
-                for AI systems handling sensitive data.
+                Passionate about learning and quickly implementing new technologies as required. Recently 
+                completed a Machine Learning and Artificial Intelligence course from IIT Delhi (6 months), 
+                gaining expertise in deep learning, NLP, and LLMs. My automation work has saved $32K+ 
+                quarterly through innovative engineering solutions.
               </p>
               
               {/* Quick facts */}
               <div className="grid grid-cols-2 gap-4 pt-6">
                 {[
                   { icon: 'fa-graduation-cap', text: 'B.Tech CSE, Lovely Professional University' },
-                  { icon: 'fa-brain', text: 'AI/ML Certified, IIT Delhi' },
-                  { icon: 'fa-briefcase', text: '11+ Years Professional Experience' },
+                  { icon: 'fa-certificate', text: 'AI/ML Course, IIT Delhi (6 months)' },
+                  { icon: 'fa-briefcase', text: '11+ Years Full Stack Experience' },
                   { icon: 'fa-map-marker-alt', text: 'Based in Noida, India' },
                 ].map((item) => (
                   <div key={item.text} className="flex items-start gap-3 group">
