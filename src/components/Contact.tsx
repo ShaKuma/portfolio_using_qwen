@@ -8,15 +8,21 @@ export default function Contact() {
     subject: '',
     message: '',
   });
-  const [submitted, setSubmitted] = useState(false);
   const { ref: headerRef, isInView: headerVisible } = useInView();
   const { ref: formRef, isInView: formVisible } = useInView();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    
+    // Construct mailto URL with form data
+    const subject = encodeURIComponent(formData.subject || 'Contact from Portfolio');
+    const body = encodeURIComponent(
+      `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
+    );
+    const mailtoLink = `mailto:Shashikmr01991@gmail.com?subject=${subject}&body=${body}`;
+    
+    // Open email client
+    window.location.href = mailtoLink;
   };
 
   return (
@@ -122,16 +128,7 @@ export default function Contact() {
           {/* Contact Form */}
           <div className={`lg:col-span-3 reveal-right ${formVisible ? 'visible' : ''}`} style={{ transitionDelay: '0.2s' }}>
             <div className="glass-card rounded-2xl p-6 lg:p-8">
-              {submitted ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center animate-scale-in">
-                  <div className="w-20 h-20 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-6">
-                    <i className="fas fa-check text-green-400 text-3xl"></i>
-                  </div>
-                  <h3 className="text-2xl font-bold text-text-primary mb-3">Message Sent!</h3>
-                  <p className="text-text-secondary">Thank you for reaching out. I'll get back to you soon.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid sm:grid-cols-2 gap-6">
                     <div className="group">
                       <label className="block text-sm font-medium text-text-secondary mb-2.5">
@@ -194,7 +191,6 @@ export default function Contact() {
                     Send Message
                   </button>
                 </form>
-              )}
             </div>
           </div>
         </div>
