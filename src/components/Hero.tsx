@@ -159,8 +159,8 @@ export default function Hero() {
             <i className="fas fa-arrow-right text-sm ml-1"></i>
           </a>
           <a href="#contact" className="btn-secondary text-base">
-            <i className="fas fa-download text-sm"></i>
-            Download CV
+            <i className="fas fa-comments text-sm"></i>
+            Let's Connect
           </a>
         </div>
 
