@@ -91,6 +91,9 @@ export default function FloatingSpeakButton() {
       workerRef.current?.removeEventListener('message', onMessageReceived);
       workerRef.current?.removeEventListener('error', onErrorReceived);
       workerRef.current?.terminate();
+      if (speakTimeoutRef.current) {
+        clearTimeout(speakTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -120,6 +123,8 @@ export default function FloatingSpeakButton() {
     setIsPaused(false);
   };
 
+  const speakTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const speak = () => {
     if (!modelReady || !workerRef.current) {
       console.error('Model not ready');
@@ -129,11 +134,25 @@ export default function FloatingSpeakButton() {
     console.log('Requesting speech generation...');
     setIsSpeaking(true);
     setLoadingMessage('Generating speech...');
+    setError(null);
     
     workerRef.current.postMessage({
       type: 'synthesize',
       text: portfolioSummary,
     });
+
+    // Clear any existing timeout
+    if (speakTimeoutRef.current) {
+      clearTimeout(speakTimeoutRef.current);
+    }
+
+    // Add timeout to prevent infinite loading
+    speakTimeoutRef.current = setTimeout(() => {
+      console.warn('Speech generation timeout after 60 seconds');
+      setError('Speech generation is taking too long. This might be due to CPU processing. Please try again or check browser console for details.');
+      setIsSpeaking(false);
+      setLoadingMessage('');
+    }, 60000); // 60 seconds timeout
   };
 
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
