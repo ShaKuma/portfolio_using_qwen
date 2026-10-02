@@ -1,19 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
-import { streamText } from 'ai';
-import { transformersJS } from '@browser-ai/transformers-js';
+import { pipeline, env } from '@huggingface/transformers';
 import { generateChatbotContext } from '../data/portfolioData';
+
+// Configure transformers to use CDN
+env.allowLocalModels = false;
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([
-    { role: 'assistant', content: "Hi! I can tell you about Shashi Kumar's 11+ years of experience, his AI/ML expertise from IIT Delhi, technical skills, or current role at TIS:FIS. What would you like to know?" }
+    { role: 'assistant', content: "Hi! Ask me about Shashi's experience, skills, or projects." }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [modelReady, setModelReady] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const modelRef = useRef<any>(null);
+  const generatorRef = useRef<any>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -25,7 +27,7 @@ export default function Chatbot() {
 
   useEffect(() => {
     // Initialize model when chatbot is opened
-    if (isOpen && !modelRef.current) {
+    if (isOpen && !generatorRef.current) {
       initializeModel();
     }
   }, [isOpen]);
@@ -35,23 +37,16 @@ export default function Chatbot() {
       setIsLoading(true);
       setLoadingProgress(0);
 
-      const model = transformersJS('HuggingFaceTB/SmolLM2-135M-Instruct', {
-        device: 'wasm',
-        worker: new Worker(new URL('../chatbot.worker.ts', import.meta.url), {
-          type: 'module',
-        }),
+      // Load the text generation pipeline
+      const generator = await pipeline('text-generation', 'HuggingFaceTB/SmolLM2-135M-Instruct', {
+        progress_callback: (progress: any) => {
+          if (progress.status === 'progress') {
+            setLoadingProgress(Math.round(progress.progress));
+          }
+        },
       });
 
-      // Check availability and download with progress
-      const availability = await model.availability();
-      
-      if (availability === 'downloadable') {
-        await model.createSessionWithProgress((progress: number) => {
-          setLoadingProgress(Math.round(progress * 100));
-        });
-      }
-
-      modelRef.current = model;
+      generatorRef.current = generator;
       setModelReady(true);
       setIsLoading(false);
     } catch (error) {
@@ -79,7 +74,7 @@ export default function Chatbot() {
       
       // Format conversation for SmolLM2 (no system messages allowed)
       const conversationHistory = messages
-        .filter(msg => msg.role !== 'assistant' || msg.content !== "Hi! I'm an AI assistant. Ask me anything about Shashi Kumar's experience, skills, or projects!")
+        .filter(msg => msg.role !== 'assistant' || !msg.content.startsWith("Hi!"))
         .map(msg => {
           if (msg.role === 'user') return `Question: ${msg.content}`;
           return `Answer: ${msg.content}`;
@@ -93,24 +88,37 @@ ${conversationHistory}
 Question: ${userMessage}
 Answer:`;
 
-      const result = streamText({
-        model: modelRef.current,
-        prompt: fullPrompt,
+      // Initialize streaming response
+      let assistantMessage = '';
+      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+      // Generate with streaming
+      const output = await generatorRef.current(fullPrompt, {
+        max_new_tokens: 200,
+        temperature: 0.7,
+        top_p: 0.9,
+        do_sample: true,
+        callback_function: (output: any) => {
+          // Extract the generated text (remove the prompt)
+          const generatedText = output[0].generated_text.replace(fullPrompt, '').trim();
+          assistantMessage = generatedText;
+          
+          // Update the last message with streaming content
+          setMessages(prev => {
+            const newMessages = [...prev];
+            newMessages[newMessages.length - 1] = { role: 'assistant', content: assistantMessage };
+            return newMessages;
+          });
+        },
       });
 
-      let assistantMessage = '';
-      for await (const textPart of result.textStream) {
-        assistantMessage += textPart;
-        setMessages(prev => {
-          const newMessages = [...prev];
-          if (newMessages[newMessages.length - 1]?.role === 'assistant') {
-            newMessages[newMessages.length - 1] = { role: 'assistant', content: assistantMessage };
-          } else {
-            newMessages.push({ role: 'assistant', content: assistantMessage });
-          }
-          return newMessages;
-        });
-      }
+      // Final update with complete response
+      const finalText = output[0].generated_text.replace(fullPrompt, '').trim();
+      setMessages(prev => {
+        const newMessages = [...prev];
+        newMessages[newMessages.length - 1] = { role: 'assistant', content: finalText };
+        return newMessages;
+      });
     } catch (error) {
       console.error('Error generating response:', error);
       setMessages(prev => [...prev, { 
