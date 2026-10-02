@@ -8,6 +8,7 @@ import Experience from './components/Experience';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import ScrollProgress from './components/ScrollProgress';
+import FloatingSpeakButton from './components/FloatingSpeakButton';
 
 function LoadingScreen({ onComplete }: { onComplete: () => void }) {
   const [progress, setProgress] = useState(0);
@@ -51,6 +52,7 @@ export default function App() {
       {!loaded && <LoadingScreen onComplete={() => setLoaded(true)} />}
       <div className={`min-h-screen bg-dark-bg text-text-primary transition-all duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}>
         <ScrollProgress />
+        <FloatingSpeakButton />
         <Navbar />
         <Hero />
         <About />
