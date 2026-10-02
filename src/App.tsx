@@ -8,7 +8,6 @@ import Experience from './components/Experience';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import ScrollProgress from './components/ScrollProgress';
-import Chatbot from './components/Chatbot';
 
 export default function App() {
   const [loaded, setLoaded] = useState(false);
@@ -34,7 +33,6 @@ export default function App() {
       )}
       <div className={`min-h-screen bg-dark-bg text-text-primary transition-all duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}>
         <ScrollProgress />
-        <Chatbot />
         <Navbar />
         <Hero />
         <About />
