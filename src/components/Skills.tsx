@@ -65,12 +65,12 @@ export default function Skills() {
   const { ref: tagsRef, isInView: tagsVisible } = useInView();
 
   return (
-    <section id="skills" className="py-24 lg:py-36 relative">
+    <section id="skills" className="py-16 lg:py-24 relative">
       <div className="section-divider"></div>
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         {/* Section Header */}
-        <div ref={headerRef} className={`text-center mb-20 reveal ${headerVisible ? 'visible' : ''}`}>
+        <div ref={headerRef} className={`text-center mb-12 reveal ${headerVisible ? 'visible' : ''}`}>
           <span className="inline-block px-4 py-1.5 text-xs font-semibold tracking-wider uppercase text-primary-light bg-primary/10 rounded-full mb-5 border border-primary/20">
             Skills & Expertise
           </span>
@@ -84,7 +84,7 @@ export default function Skills() {
         </div>
 
         {/* Skill Categories Grid */}
-        <div ref={gridRef} className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-20">
+        <div ref={gridRef} className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-12">
           {skillCategories.map((category, index) => (
             <div
               key={category.title}
