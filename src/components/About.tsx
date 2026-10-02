@@ -73,16 +73,17 @@ export default function About() {
                 A passionate full-stack engineer with expertise in AI/ML and automation
               </h3>
               <p className="text-text-secondary leading-relaxed text-[15px]">
-                With 11+ years of experience in full-stack web application development, I've handled 
-                everything from development to deployment. I'm passionate about learning and quickly 
-                implementing new technologies, with a proven ability to use innovative methods for 
-                processing and troubleshooting problems while providing cost-effective solutions.
+                With 11+ years of experience in full-stack development and AI engineering, I currently 
+                architect enterprise-grade AI agent platforms and MCP server ecosystems at FIS. I'm 
+                passionate about building intelligent systems that leverage A2A protocols, vector embeddings, 
+                and multi-model orchestration to solve complex business problems.
               </p>
               <p className="text-text-secondary leading-relaxed text-[15px]">
-                I completed a Machine Learning and Artificial Intelligence course from IIT Delhi (6 months), 
-                and have built projects including LSTM-based text sentiment analysis, YOLOv8 implementations, 
-                and Hugging Face transformer models. My work has saved companies significant costs through 
-                automation and smart engineering.
+                I completed an AI/ML certification from IIT Delhi (6 months) and have built production 
+                systems including organization-wide AI ChatBots, MCP servers for 8+ integrations, 
+                LSTM-based prediction models, and YOLOv8 implementations. My automation work has saved 
+                $32K+ quarterly, and I specialize in implementing OWASP-compliant security guardrails 
+                for AI systems handling sensitive data.
               </p>
               
               {/* Quick facts */}

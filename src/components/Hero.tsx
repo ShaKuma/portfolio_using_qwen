@@ -80,15 +80,6 @@ export default function Hero() {
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {/* Status badge */}
-        <div className="animate-fade-in-down inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full glass-card mb-10">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-400"></span>
-          </span>
-          <span className="text-sm text-text-secondary font-medium">Open to new opportunities</span>
-        </div>
-
         {/* Main heading with staggered animation */}
         <div className="overflow-hidden mb-4">
           <h1 className="animate-fade-in-up text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-text-primary leading-[1.1] tracking-tight" style={{ animationDelay: '0.2s' }}>
@@ -118,9 +109,9 @@ export default function Hero() {
 
         {/* Description */}
         <p className="animate-fade-in-up max-w-2xl mx-auto text-lg text-text-muted mb-12 leading-relaxed" style={{ animationDelay: '0.6s' }}>
-          11+ years of experience building scalable web applications and AI/ML solutions. 
-          Passionate about clean architecture, automation, and delivering cost-effective 
-          solutions that drive business value.
+          11+ years of experience building enterprise AI agent platforms, MCP server ecosystems, 
+          and scalable web applications. Currently architecting organization-wide AI ChatBot systems 
+          with A2A protocols, vector embeddings, and robust security guardrails.
         </p>
 
         {/* CTA Buttons */}

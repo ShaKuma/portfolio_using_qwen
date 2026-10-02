@@ -2,60 +2,60 @@ import { useInView } from '../hooks/useInView';
 
 const projects = [
   {
-    title: 'Auto-Refresh Member Service',
-    description: 'Background window service for auto-refreshing members list in database based on Active Directory changes using LDAP Protocol. Saved $32K quarterly in project costs.',
-    tags: ['C#', 'LDAP', 'Threading', 'Data Structures'],
-    icon: '💰',
+    title: 'Enterprise AI ChatBot Platform',
+    description: 'Designed & built an organization-wide AI ChatBot Web UI integrated with MCP servers for orchestrating calls to JIRA, GitHub, Wiki, Jenkins, and more. Features A2A protocol for multi-turn agent conversations, cross-agent collaboration, and parallel agent invocation.',
+    tags: ['React', 'LLMs', 'A2A Protocol', 'MCP', 'Vector DB'],
+    icon: '🤖',
     gradient: 'from-violet-600/20 to-purple-600/20',
     github: '#',
     live: '#',
     featured: true,
   },
   {
-    title: 'Insta Quote - Insurance App',
-    description: 'Android prototype for insurance domain - scanning barcodes to fetch product details and searching best insurance policies. Won Hackathon and moved to real-time implementation.',
-    tags: ['Android SDK', 'Java', 'Barcode Scanner', 'Insurance'],
-    icon: '📱',
+    title: 'MCP Servers Ecosystem',
+    description: 'Architected Model Context Protocol (MCP) servers for GitHub, JIRA, Jenkins, Web Services, Splunk, Windows RDP, and PDF Creator — integrated with VS Code to enable AI-powered development workflows across the organization.',
+    tags: ['MCP', 'VS Code', 'GitHub API', 'Jenkins', 'Splunk'],
+    icon: '🔌',
     gradient: 'from-blue-600/20 to-cyan-600/20',
-    github: '#',
+    github: 'https://github.com/ShaKuma/',
     live: '#',
     featured: true,
   },
   {
-    title: 'LSTM Sales Prediction',
-    description: 'Implemented Artificial Neural Network (LSTM model) for future sales prediction using deep learning techniques for time-series forecasting.',
-    tags: ['Python', 'TensorFlow', 'LSTM', 'Deep Learning'],
-    icon: '📈',
+    title: 'AI Agent Security & Guardrails',
+    description: 'Engineered robust security guardrails to prevent PII/sensitive data leakage to external LLMs. Implemented OWASP Top 10 remediations for AI agents with anonymous data transmission and vector-based per-user agent memory.',
+    tags: ['OWASP', 'Security', 'Vector Embeddings', 'LLMs', 'PII Protection'],
+    icon: '🛡️',
     gradient: 'from-emerald-600/20 to-teal-600/20',
     github: '#',
     live: '#',
     featured: true,
   },
   {
-    title: 'Text Sentiment Analysis',
-    description: 'Built LSTM model for text sentiment analysis on Amazon product reviews using deep learning for natural language processing.',
-    tags: ['Python', 'LSTM', 'NLP', 'Amazon Reviews'],
-    icon: '🧠',
+    title: 'Auto-Refresh Member Service',
+    description: 'Background window service for auto-refreshing members list in database based on Active Directory changes using LDAP Protocol. Used advanced data structures and threading for efficient updates. Saved $32K quarterly.',
+    tags: ['C#', 'LDAP', 'Threading', 'Data Structures'],
+    icon: '💰',
     gradient: 'from-amber-600/20 to-orange-600/20',
     github: '#',
     live: '#',
     featured: false,
   },
   {
-    title: 'Fraud Detection System',
-    description: 'Implemented Early Warning System for fraud account detection in payment processing application at Global Payments.',
-    tags: ['C#', 'React', 'Analytics', 'Fraud Detection'],
-    icon: '🛡️',
+    title: 'Insta Quote - Insurance App',
+    description: 'Android prototype for insurance domain — scanning barcodes to fetch product details and searching best insurance policies. Won Hackathon challenge across Cognizant worldwide and moved to real-time implementation.',
+    tags: ['Android SDK', 'Java', 'Barcode Scanner', 'Insurance'],
+    icon: '📱',
     gradient: 'from-pink-600/20 to-rose-600/20',
     github: '#',
     live: '#',
     featured: false,
   },
   {
-    title: 'Text Generation Model',
-    description: 'Used Hugging Face transformers to build text generation model using pre-trained models. Also implemented text-to-speech pipeline.',
-    tags: ['Hugging Face', 'Transformers', 'LLM', 'TTS'],
-    icon: '🤖',
+    title: 'LSTM Sales Prediction & NLP',
+    description: 'Implemented ANN (LSTM) for future sales prediction. Built text sentiment analysis on Amazon reviews using LSTM. Used Hugging Face transformers for text generation and text-to-speech pipelines.',
+    tags: ['Python', 'TensorFlow', 'LSTM', 'Hugging Face', 'NLP'],
+    icon: '🧠',
     gradient: 'from-green-600/20 to-lime-600/20',
     github: 'https://github.com/ShaKuma/',
     live: '#',
@@ -78,10 +78,10 @@ export default function Projects() {
             Portfolio
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary tracking-tight">
-            Featured <span className="gradient-text">Projects & Achievements</span>
+            Featured <span className="gradient-text">Projects & Innovations</span>
           </h2>
           <p className="mt-4 text-text-secondary max-w-2xl mx-auto">
-            Key projects and innovations that showcase my expertise in full-stack development and AI/ML
+            Key projects showcasing expertise in AI agents, MCP ecosystems, full-stack development, and ML
           </p>
           <div className="mt-4 w-16 h-1 gradient-bg rounded-full mx-auto"></div>
         </div>
