@@ -127,19 +127,18 @@ export default function Hero() {
 
         {/* Description */}
         <p className="animate-fade-in-up max-w-2xl mx-auto text-lg text-text-muted mb-8 leading-relaxed" style={{ animationDelay: '0.6s' }}>
-          11+ years of experience working as a full stack web application developer handling 
-          development to deployment. Proven ability to use innovative methods for processing and 
-          troubleshooting problems, providing cost-effective solutions. Passionate about learning 
-          and quickly implementing new technologies as required.
+          Experienced Full Stack Web Application Developer with over 11 years of expertise in developing, deploying, and optimizing enterprise-grade solutions. 
+          Adept at diagnosing complex problems and implementing creative, efficient fixes that reduce costs and improve performance. 
+          Committed to continuous learning and leveraging modern technologies to drive faster, higher-quality results.
         </p>
 
         {/* AI/ML Highlight Pills */}
         <div className="animate-fade-in-up flex flex-wrap justify-center gap-3 mb-12" style={{ animationDelay: '0.7s' }}>
           {[
-            { icon: 'fa-brain', text: 'Deep Learning & Neural Networks' },
-            { icon: 'fa-robot', text: 'LLMs & Transformers' },
-            { icon: 'fa-eye', text: 'Computer Vision (YOLOv8)' },
-            { icon: 'fa-comments', text: 'NLP & Sentiment Analysis' },
+            { icon: 'fa-brain', text: 'Deep Learning' },
+            { icon: 'fa-robot', text: 'Large Language Models' },
+            { icon: 'fa-eye', text: 'Computer Vision' },
+            { icon: 'fa-comments', text: 'Natural Language Processing' },
           ].map((item) => (
             <span
               key={item.text}
