@@ -21,8 +21,11 @@ export default function Contact() {
     );
     const mailtoLink = `mailto:Shashikmr01991@gmail.com?subject=${subject}&body=${body}`;
     
-    // Open email client
-    window.location.href = mailtoLink;
+    // Create a temporary anchor element and click it
+    // This is more reliable than window.location.href
+    const link = document.createElement('a');
+    link.href = mailtoLink;
+    link.click();
   };
 
   return (
