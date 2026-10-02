@@ -17,7 +17,7 @@ export default function AnimatedTerminal() {
   const [visibleLines, setVisibleLines] = useState<number>(0);
 
   useEffect(() => {
-    const timers: number[] = [];
+    const timers: ReturnType<typeof setTimeout>[] = [];
 
     codeLines.forEach((line, index) => {
       const timer = setTimeout(() => {
