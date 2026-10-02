@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { pipeline } from '@huggingface/transformers';
 
-const portfolioSummary = `
-Hi there! I'm Shashi Kumar, an Associate Lead Software Engineer at TIS, FIS, Fidelity Information Services, based in Noida, India.
+const portfolioSummary = `Hi there! I'm Shashi Kumar, an Associate Lead Software Engineer at TIS, FIS, Fidelity Information Services, based in Noida, India.
 
 With over 11 years of experience as a full stack web application developer, I've handled everything from development to deployment across multiple enterprise applications.
 
 I'm passionate about learning and quickly implementing new technologies. My automation work has saved over 32 thousand dollars quarterly through innovative engineering solutions.
 
-I'm also certified in Artificial Intelligence and Machine Learning from IIT Delhi, where I completed a 6 month intensive program. My AI expertise includes Deep Learning with A N N, C N N, R N N, and L S T M models, Natural Language Processing, Computer Vision using YOLO v 8, Large Language Models, and frameworks like TensorFlow, PyTorch, and Hugging Face Transformers.
+I'm also certified in Artificial Intelligence and Machine Learning from IIT Delhi, where I completed a 6 month intensive program. My AI expertise includes Deep Learning with neural networks, Natural Language Processing, Computer Vision using YOLO v 8, Large Language Models, and frameworks like TensorFlow, PyTorch, and Hugging Face Transformers.
 
 In my current role at F I S, I've architected Model Context Protocol servers for GitHub, JIRA, Jenkins, Splunk, and more, integrated with VS Code. I've also built an enterprise-grade Web U I for an Organization Wide AI ChatBot System, leveraging the A 2 A protocol for multi-turn agent conversations and parallel agent invocation.
 
@@ -15,110 +15,172 @@ My technical stack includes React, A S P dot NET, C sharp, Python, SQL Server, J
 
 I've received several accolades including Client Service Appreciation for reverse engineering legacy C plus plus code, and I won a Hackathon challenge across Cognizant worldwide with my Insta Quote Android application.
 
-Feel free to explore my portfolio to learn more about my projects, skills, and experience. Let's connect and build something amazing together!
-`;
+Feel free to explore my portfolio to learn more about my projects, skills, and experience. Let's connect and build something amazing together!`;
 
 export default function FloatingSpeakButton() {
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [isSupported, setIsSupported] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState('');
+  
+  const synthesizerRef = useRef<any>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioBufferRef = useRef<AudioBuffer | null>(null);
+  const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
+  const startTimeRef = useRef<number>(0);
+  const pauseTimeRef = useRef<number>(0);
 
   useEffect(() => {
-    // Check browser support
-    if (!('speechSynthesis' in window)) {
-      setIsSupported(false);
-    }
-
-    // Cleanup on unmount
+    // Initialize audio context
+    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
     return () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+      // Cleanup
+      if (sourceNodeRef.current) {
+        sourceNodeRef.current.stop();
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
       }
     };
   }, []);
 
-  const speak = () => {
-    if (!isSupported) return;
-
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(portfolioSummary.trim());
+  const loadModel = async () => {
+    if (synthesizerRef.current) return;
     
-    // Configure voice settings
-    utterance.rate = 1.0;      // Normal speed
-    utterance.pitch = 1.0;     // Normal pitch
-    utterance.volume = 1.0;    // Full volume
-    utterance.lang = 'en-US';  // English
-
-    // Try to use a good quality voice
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(
-      (v) => v.name.includes('Google') && v.lang.startsWith('en')
-    ) || voices.find((v) => v.lang.startsWith('en'));
+    setIsLoading(true);
+    setLoadingProgress('Loading neural TTS model...');
     
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
+    try {
+      // Load SpeechT5 TTS model using Transformers.js
+      // This is a transformer-based model that produces natural human-like speech
+      synthesizerRef.current = await pipeline(
+        'text-to-speech',
+        'Xenova/speecht5_tts',
+        {
+          progress_callback: (progress: any) => {
+            if (progress.status === 'downloading') {
+              const percent = progress.progress ? Math.round(progress.progress) : 0;
+              setLoadingProgress(`Downloading model: ${percent}%`);
+            } else if (progress.status === 'loading') {
+              setLoadingProgress('Loading model into memory...');
+            }
+          }
+        }
+      );
+      
+      setLoadingProgress('Model ready!');
+      setTimeout(() => setIsLoading(false), 500);
+    } catch (error) {
+      console.error('Failed to load TTS model:', error);
+      setIsLoading(false);
+      setLoadingProgress('Failed to load model');
+    }
+  };
+
+  const speak = async () => {
+    if (!synthesizerRef.current) {
+      await loadModel();
+      if (!synthesizerRef.current) return;
     }
 
-    utterance.onstart = () => {
+    try {
       setIsSpeaking(true);
       setIsPaused(false);
-    };
+      
+      // Generate speech using the neural network model
+      const output = await synthesizerRef.current(portfolioSummary, {
+        speaker_embeddings: new Float32Array(512).fill(0), // Default speaker embedding
+      });
+      
+      // Convert to audio buffer
+      const audioBuffer = await audioContextRef.current!.decodeAudioData(output.audio.buffer);
+      audioBufferRef.current = audioBuffer;
+      
+      // Play audio
+      playAudio();
+    } catch (error) {
+      console.error('Speech generation failed:', error);
+      setIsSpeaking(false);
+    }
+  };
 
-    utterance.onend = () => {
+  const playAudio = () => {
+    if (!audioBufferRef.current || !audioContextRef.current) return;
+    
+    const source = audioContextRef.current.createBufferSource();
+    source.buffer = audioBufferRef.current;
+    source.connect(audioContextRef.current.destination);
+    source.onended = () => {
       setIsSpeaking(false);
       setIsPaused(false);
     };
-
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-      setIsPaused(false);
-    };
-
-    window.speechSynthesis.speak(utterance);
+    
+    source.start(0, pauseTimeRef.current);
+    startTimeRef.current = audioContextRef.current.currentTime - pauseTimeRef.current;
+    sourceNodeRef.current = source;
   };
 
   const pause = () => {
-    window.speechSynthesis.pause();
-    setIsPaused(true);
+    if (sourceNodeRef.current && audioContextRef.current) {
+      pauseTimeRef.current = audioContextRef.current.currentTime - startTimeRef.current;
+      sourceNodeRef.current.stop();
+      setIsPaused(true);
+    }
   };
 
   const resume = () => {
-    window.speechSynthesis.resume();
     setIsPaused(false);
+    playAudio();
   };
 
   const stop = () => {
-    window.speechSynthesis.cancel();
+    if (sourceNodeRef.current) {
+      sourceNodeRef.current.stop();
+      sourceNodeRef.current = null;
+    }
+    pauseTimeRef.current = 0;
     setIsSpeaking(false);
     setIsPaused(false);
   };
 
-  const handleClick = () => {
-    if (!isSpeaking) {
-      speak();
+  const handleClick = async () => {
+    if (!isSpeaking && !isLoading) {
+      await speak();
+    } else if (isSpeaking && !isPaused) {
+      pause();
     } else if (isPaused) {
       resume();
-    } else {
-      pause();
     }
   };
-
-  if (!isSupported) return null;
 
   return (
     <>
       {/* Floating Button */}
       <div className="fixed bottom-8 left-8 z-50 flex items-center gap-3">
         {/* Tooltip */}
-        {showTooltip && !isSpeaking && (
+        {showTooltip && !isSpeaking && !isLoading && (
           <div className="absolute bottom-full left-0 mb-3 px-4 py-2 bg-dark-card border border-dark-border rounded-lg shadow-xl animate-fade-in whitespace-nowrap">
             <p className="text-sm text-text-primary font-medium">
-              🔊 Listen to my portfolio summary
+              🧠 Neural TTS - Listen to my portfolio
             </p>
+            <p className="text-xs text-text-muted mt-1">Powered by Transformers.js</p>
             <div className="absolute bottom-0 left-6 w-2 h-2 bg-dark-card border-r border-b border-dark-border rotate-45 -translate-y-1"></div>
+          </div>
+        )}
+
+        {/* Loading indicator */}
+        {isLoading && (
+          <div className="absolute bottom-full left-0 mb-3 px-4 py-3 bg-dark-card border border-primary/30 rounded-lg shadow-xl animate-fade-in">
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <div>
+                <p className="text-sm text-text-primary font-medium">Loading Neural TTS</p>
+                <p className="text-xs text-text-muted">{loadingProgress}</p>
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-6 w-2 h-2 bg-dark-card border-r border-b border-primary/30 rotate-45 -translate-y-1"></div>
           </div>
         )}
 
@@ -138,8 +200,11 @@ export default function FloatingSpeakButton() {
           onClick={handleClick}
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
+          disabled={isLoading}
           className={`relative w-14 h-14 rounded-full flex items-center justify-center text-white transition-all duration-300 shadow-lg ${
-            isSpeaking && !isPaused
+            isLoading
+              ? 'bg-gradient-to-br from-gray-600 to-gray-700 cursor-wait'
+              : isSpeaking && !isPaused
               ? 'bg-gradient-to-br from-primary to-accent animate-neural-pulse shadow-primary/40'
               : isPaused
               ? 'bg-gradient-to-br from-amber-500 to-orange-500 shadow-amber-500/30'
@@ -157,11 +222,13 @@ export default function FloatingSpeakButton() {
 
           {/* Icon */}
           <i className={`fas ${
-            isSpeaking && !isPaused 
+            isLoading
+              ? 'fa-spinner fa-spin'
+              : isSpeaking && !isPaused 
               ? 'fa-volume-up' 
               : isPaused 
               ? 'fa-pause' 
-              : 'fa-volume-up'
+              : 'fa-brain'
           } text-lg relative z-10`}></i>
         </button>
       </div>
