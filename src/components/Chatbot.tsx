@@ -72,23 +72,21 @@ export default function Chatbot() {
       // Generate dynamic context from portfolio data
       const SHASHI_CONTEXT = generateChatbotContext();
       
-      // Simplified prompt format to prevent hallucination
-      const fullPrompt = `${SHASHI_CONTEXT}
-
-Q: ${userMessage}
+      // Very simple prompt - just context + question
+      const fullPrompt = `${SHASHI_CONTEXT} ${userMessage}
 A:`;
 
       // Initialize streaming response
       let assistantMessage = '';
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
-      // Generate with streaming - lower temperature for more accurate responses
+      // Generate with streaming - very low temperature for factual responses
       const output = await generatorRef.current(fullPrompt, {
-        max_new_tokens: 150,
-        temperature: 0.3, // Lower temperature for more factual responses
-        top_p: 0.85,
-        top_k: 50,
-        repetition_penalty: 1.2, // Penalize repetition
+        max_new_tokens: 100, // Shorter responses
+        temperature: 0.1, // Very low for deterministic responses
+        top_p: 0.8,
+        top_k: 30,
+        repetition_penalty: 1.5, // Strong penalty for repetition
         do_sample: true,
         callback_function: (output: any) => {
           // Extract the generated text (remove the prompt)
@@ -115,14 +113,17 @@ A:`;
       // Final update with complete response
       let finalText = output[0].generated_text.replace(fullPrompt, '').trim();
       
-      // Clean up final response
-      if (finalText.toLowerCase().includes('hi!') || finalText.toLowerCase().includes('hello')) {
-        finalText = finalText.replace(/^(Hi!|Hello!|Hey!)\s*/i, '').trim();
-      }
+      // Clean up final response - remove greetings, question echoes, and other unwanted patterns
+      finalText = finalText
+        .replace(/^(Hi!|Hello!|Hey!|Yes,?|I can help|I am able to)\s*/i, '')
+        .replace(/^(what is|can you|tell me|how much|where did).*\?/i, '')
+        .replace(/Q:.*\n?/g, '')
+        .replace(/A:.*\n?/g, '')
+        .trim();
       
-      // If response is empty or just repeats the question, provide a fallback
-      if (!finalText || finalText.length < 10) {
-        finalText = "Based on the information available, I can help you with questions about Shashi's experience, skills, projects, or contact details.";
+      // If response is empty, too short, or just repeats the question, provide a fallback
+      if (!finalText || finalText.length < 10 || finalText.toLowerCase().includes(userMessage.toLowerCase())) {
+        finalText = "I can help you with questions about Shashi's experience, skills, projects, or contact details.";
       }
       
       setMessages(prev => {
