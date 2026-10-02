@@ -1,67 +1,22 @@
 import { useInView } from '../hooks/useInView';
+import { projects as portfolioProjects } from '../data/portfolioData';
 
-const projects = [
-  {
-    title: 'Enterprise AI ChatBot Platform',
-    description: 'Designed & built an organization-wide AI ChatBot Web UI integrated with MCP servers for orchestrating calls to JIRA, GitHub, Wiki, Jenkins, and more. Features A2A protocol for multi-turn agent conversations, cross-agent collaboration, and parallel agent invocation.',
-    tags: ['React', 'LLMs', 'A2A Protocol', 'MCP', 'Vector DB'],
-    icon: '🤖',
-    gradient: 'from-violet-600/20 to-purple-600/20',
-    github: '#',
-    live: '#',
-    featured: true,
-  },
-  {
-    title: 'MCP Servers Ecosystem',
-    description: 'Architected Model Context Protocol (MCP) servers for GitHub, JIRA, Jenkins, Web Services, Splunk, Windows RDP, and PDF Creator — integrated with VS Code to enable AI-powered development workflows across the organization.',
-    tags: ['MCP', 'VS Code', 'GitHub API', 'Jenkins', 'Splunk'],
-    icon: '🔌',
-    gradient: 'from-blue-600/20 to-cyan-600/20',
-    github: 'https://github.com/ShaKuma/',
-    live: '#',
-    featured: true,
-  },
-  {
-    title: 'AI Agent Security & Guardrails',
-    description: 'Engineered robust security guardrails to prevent PII/sensitive data leakage to external LLMs. Implemented OWASP Top 10 remediations for AI agents with anonymous data transmission and vector-based per-user agent memory.',
-    tags: ['OWASP', 'Security', 'Vector Embeddings', 'LLMs', 'PII Protection'],
-    icon: '🛡️',
-    gradient: 'from-emerald-600/20 to-teal-600/20',
-    github: '#',
-    live: '#',
-    featured: true,
-  },
-  {
-    title: 'Auto-Refresh Member Service',
-    description: 'Background window service for auto-refreshing members list in database based on Active Directory changes using LDAP Protocol. Used advanced data structures and threading for efficient updates. Saved $32K quarterly.',
-    tags: ['C#', 'LDAP', 'Threading', 'Data Structures'],
-    icon: '💰',
-    gradient: 'from-amber-600/20 to-orange-600/20',
-    github: '#',
-    live: '#',
-    featured: false,
-  },
-  {
-    title: 'Insta Quote - Insurance App',
-    description: 'Android prototype for insurance domain — scanning barcodes to fetch product details and searching best insurance policies. Won Hackathon challenge across Cognizant worldwide and moved to real-time implementation.',
-    tags: ['Android SDK', 'Java', 'Barcode Scanner', 'Insurance'],
-    icon: '📱',
-    gradient: 'from-pink-600/20 to-rose-600/20',
-    github: '#',
-    live: '#',
-    featured: false,
-  },
-  {
-    title: 'LSTM Sales Prediction & NLP',
-    description: 'Implemented ANN (LSTM) for future sales prediction. Built text sentiment analysis on Amazon reviews using LSTM. Used Hugging Face transformers for text generation and text-to-speech pipelines.',
-    tags: ['Python', 'TensorFlow', 'LSTM', 'Hugging Face', 'NLP'],
-    icon: '🧠',
-    gradient: 'from-green-600/20 to-lime-600/20',
-    github: 'https://github.com/ShaKuma/',
-    live: '#',
-    featured: false,
-  },
-];
+// Map portfolio data to UI-specific properties
+const projects = portfolioProjects.map((project, index) => ({
+  ...project,
+  icon: ['🤖', '🔌', '🛡️', '💰', '📱', '🧠'][index] || '💼',
+  gradient: [
+    'from-violet-600/20 to-purple-600/20',
+    'from-blue-600/20 to-cyan-600/20',
+    'from-emerald-600/20 to-teal-600/20',
+    'from-amber-600/20 to-orange-600/20',
+    'from-pink-600/20 to-rose-600/20',
+    'from-green-600/20 to-lime-600/20',
+  ][index] || 'from-gray-600/20 to-slate-600/20',
+  github: '#',
+  live: '#',
+  featured: index < 3,
+}));
 
 export default function Projects() {
   const { ref: headerRef, isInView: headerVisible } = useInView();

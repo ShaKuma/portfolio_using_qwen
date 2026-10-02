@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useInView } from '../hooks/useInView';
+import { personalInfo } from '../data/portfolioData';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -19,7 +20,7 @@ export default function Contact() {
     const body = encodeURIComponent(
       `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
     );
-    const mailtoLink = `mailto:Shashikmr01991@gmail.com?subject=${subject}&body=${body}`;
+    const mailtoLink = `mailto:${personalInfo.email}?subject=${subject}&body=${body}`;
     
     // Create a temporary anchor element and click it
     // This is more reliable than window.location.href
@@ -54,7 +55,7 @@ export default function Contact() {
               <h3 className="text-xl font-bold text-text-primary mb-6">Contact Information</h3>
               <div className="space-y-5">
                 <a
-                  href="mailto:Shashikmr01991@gmail.com"
+                  href={`mailto:${personalInfo.email}`}
                   className="flex items-start gap-4 group"
                 >
                   <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
@@ -62,11 +63,11 @@ export default function Contact() {
                   </div>
                   <div>
                     <p className="text-xs text-text-muted font-medium uppercase tracking-wider">Email</p>
-                    <p className="text-text-primary group-hover:text-primary-light transition-colors font-medium break-all">Shashikmr01991@gmail.com</p>
+                    <p className="text-text-primary group-hover:text-primary-light transition-colors font-medium break-all">{personalInfo.email}</p>
                   </div>
                 </a>
                 <a
-                  href="tel:+919940342772"
+                  href={`tel:${personalInfo.phone}`}
                   className="flex items-start gap-4 group"
                 >
                   <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
@@ -74,7 +75,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <p className="text-xs text-text-muted font-medium uppercase tracking-wider">Phone</p>
-                    <p className="text-text-primary group-hover:text-primary-light transition-colors font-medium">+91 9940342772</p>
+                    <p className="text-text-primary group-hover:text-primary-light transition-colors font-medium">{personalInfo.phone}</p>
                   </div>
                 </a>
                 <div className="flex items-start gap-4">
@@ -83,7 +84,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <p className="text-xs text-text-muted font-medium uppercase tracking-wider">Location</p>
-                    <p className="text-text-primary font-medium">Noida, India</p>
+                    <p className="text-text-primary font-medium">{personalInfo.location}</p>
                   </div>
                 </div>
               </div>

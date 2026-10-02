@@ -1,54 +1,31 @@
 import { useInView } from '../hooks/useInView';
 import DataFlowAnimation from './DataFlowAnimation';
+import { skills } from '../data/portfolioData';
 
 const skillCategories = [
   {
     title: 'Frontend & Web',
     icon: 'fa-laptop-code',
     gradient: 'from-violet-500 to-purple-500',
-    skills: [
-      { name: 'ReactJS', level: 90 },
-      { name: 'JavaScript / jQuery', level: 95 },
-      { name: 'ASP.NET MVC', level: 92 },
-      { name: 'HTML / CSS / AJAX', level: 95 },
-      { name: 'JSON / Web APIs', level: 90 },
-    ],
+    skills: skills.frontend,
   },
   {
     title: 'Backend & Languages',
     icon: 'fa-server',
     gradient: 'from-pink-500 to-rose-500',
-    skills: [
-      { name: 'C# / .NET', level: 95 },
-      { name: 'Python', level: 85 },
-      { name: 'C / C++', level: 80 },
-      { name: 'Java', level: 75 },
-      { name: 'Web Services / REST', level: 92 },
-    ],
+    skills: skills.backend,
   },
   {
     title: 'AI / Machine Learning',
     icon: 'fa-brain',
     gradient: 'from-amber-500 to-orange-500',
-    skills: [
-      { name: 'TensorFlow / PyTorch', level: 82 },
-      { name: 'YOLOv8 / Computer Vision', level: 78 },
-      { name: 'Hugging Face Transformers', level: 80 },
-      { name: 'LSTM / RNN / NLP', level: 82 },
-      { name: 'LLMs / Transfer Learning', level: 75 },
-    ],
+    skills: skills.aiml,
   },
   {
     title: 'DevOps & Tools',
     icon: 'fa-cloud',
     gradient: 'from-emerald-500 to-teal-500',
-    skills: [
-      { name: 'Jenkins / CI-CD', level: 90 },
-      { name: 'Kafka / Messaging Queues', level: 85 },
-      { name: 'SQL Server', level: 92 },
-      { name: 'GIT / TFS', level: 90 },
-      { name: 'Grafana / Prometheus / Splunk', level: 82 },
-    ],
+    skills: skills.devops,
   },
 ];
 
