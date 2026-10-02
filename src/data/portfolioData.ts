@@ -7,13 +7,13 @@ export const personalInfo = {
   location: "Noida, India",
   linkedin: "linkedin.com/in/shashi-kumar-6b955b80",
   github: "github.com/ShaKuma",
-  education: "B.Tech CSE from Lovely Professional University (7.87/10)",
+  education: "B.Tech CSE from Lovely Professional University",
   certification: "AI/ML certified from IIT Delhi (6 months, Feb-Aug 2024)",
 };
 
 export const currentRole = {
   title: "Associate Lead Software Engineer",
-  company: "TIS: FIS (Fidelity Information Services)",
+  company: "FIS (Fidelity Information Services)",
   period: "June 2020 - Present",
   achievements: [
     "Built MCP servers for GitHub, JIRA, Jenkins, Splunk, Windows RDP, PDF Creator",
@@ -114,62 +114,3 @@ export const achievements = [
   "Won Cognizant worldwide Hackathon with Insta Quote Android app",
   "Client Service Appreciation for C++ reverse engineering",
 ];
-
-// Function to generate dynamic context for chatbot
-export function generateChatbotContext(): string {
-  const skillsText = Object.entries(skills)
-    .map(([category, items]) => {
-      const skillList = items.map(s => `${s.name}`).join(", ");
-      return `${category}: ${skillList}`;
-    })
-    .join("\n");
-
-  const projectsText = projects
-    .map(p => `- ${p.title}`)
-    .join("\n");
-
-  const experienceText = [
-    `${currentRole.title} at ${currentRole.company} (${currentRole.period})`,
-    ...previousExperience.map(exp => `${exp.title} at ${exp.company} (${exp.period})`),
-  ].join("\n");
-
-  return `You are an AI assistant for Shashi Kumar's portfolio. Answer questions using ONLY the facts below.
-
-FACTS:
-Name: ${personalInfo.name}
-Experience: 11+ years full stack developer
-Current Job: ${currentRole.title} at ${currentRole.company}
-Location: ${personalInfo.location}
-Education: ${personalInfo.education}
-AI/ML Training: ${personalInfo.certification}
-Work: ${experienceText}
-Skills: ${skillsText}
-Projects: ${projectsText}
-Email: ${personalInfo.email}
-Phone: ${personalInfo.phone}
-
-EXAMPLES:
-Q: What is your name?
-A: My name is ${personalInfo.name}.
-
-Q: How much experience do you have?
-A: Shashi has 11+ years of experience as a full stack developer.
-
-Q: Where did you study AI/ML?
-A: Shashi completed AI/ML certification from IIT Delhi (6 months, Feb-Aug 2024).
-
-Q: What is your current role?
-A: Shashi is an ${currentRole.title} at ${currentRole.company}.
-
-Q: Tell me about your experience
-A: Shashi has 11+ years experience. Currently ${currentRole.title} at ${currentRole.company}. Previously worked at Cognizant Technology Solutions.
-
-RULES:
-- Answer in 1-2 sentences only
-- Use ONLY the facts above
-- Never repeat the question
-- Never say "hey" or greet
-- If you don't know, say "I don't have that information"
-
-Q:`;
-}
