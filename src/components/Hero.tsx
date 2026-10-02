@@ -127,9 +127,7 @@ export default function Hero() {
 
         {/* Description */}
         <p className="animate-fade-in-up max-w-2xl mx-auto text-lg text-text-muted mb-8 leading-relaxed" style={{ animationDelay: '0.6s' }}>
-          Experienced Full Stack Web Application Developer with over 11 years of expertise in developing, deploying, and optimizing enterprise-grade solutions. 
-          Adept at diagnosing complex problems and implementing creative, efficient fixes that reduce costs and improve performance. 
-          Committed to continuous learning and leveraging modern technologies to drive faster, higher-quality results.
+          11+ years full stack. Deep AI/ML foundations. Building smart, scalable web solutions.
         </p>
 
         {/* AI/ML Highlight Pills */}
