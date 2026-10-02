@@ -1,69 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { streamText } from 'ai';
 import { transformersJS } from '@browser-ai/transformers-js';
-
-const SHASHI_CONTEXT = `You are an AI assistant helping users learn about Shashi Kumar. Here is Shashi's information:
-
-ABOUT SHASHI KUMAR:
-- Associate Lead Software Engineer at TIS: FIS (Fidelity Information Services)
-- Based in Noida, India
-- 11+ years of experience as a full stack web application developer
-- B.Tech in Computer Science from Lovely Professional University (7.87/10 CGPA)
-- AI/ML certified from IIT Delhi (6-month intensive program, Feb-Aug 2024)
-
-CURRENT ROLE (June 2020 - Present):
-- Architected Model Context Protocol (MCP) servers for GitHub, JIRA, Jenkins, Splunk, Windows RDP, and PDF Creator integrated with VS Code
-- Built enterprise-grade Web UI for Organization-Wide AI ChatBot System
-- Implemented A2A (Agent-to-Agent) protocol for multi-turn agent conversations and parallel agent invocation
-- Used Vector Embeddings for persistent per-user agent memory
-- Implemented dynamic model routing for multiple LLMs based on prompt complexity
-- Built security guardrails to prevent PII leakage to external LLMs
-- Implemented OWASP Top 10 security remediations for AI agents
-- Developed Early Warning System for fraud account detection
-- Implemented LSTM model for future sales prediction
-
-PREVIOUS EXPERIENCE:
-- Cognizant Technology Solutions - Associate (June 2017 - June 2020)
-  - Developed background service saving $32K quarterly through LDAP automation
-  - Created Report Generator using Windows Service
-  - Implemented Automated Mail Notification system
-  
-- Cognizant Technology Solutions - Programmer Analyst (June 2014 - June 2017)
-  - Created Automated Reminder Mail service
-  - Implemented Excel Macros for data validation
-  - Worked on Innovation Management system
-
-TECHNICAL SKILLS:
-Frontend: ReactJS (90%), JavaScript/jQuery (95%), ASP.NET MVC (92%), HTML/CSS/AJAX (95%)
-Backend: C#/.NET (95%), Python (85%), C/C++ (80%), Java (75%), Web Services (92%)
-AI/ML: TensorFlow/PyTorch (82%), YOLOv8 (78%), Hugging Face (80%), LSTM/RNN/NLP (82%), LLMs (75%)
-DevOps: Jenkins (90%), Kafka (85%), SQL Server (92%), GIT/TFS (90%), Grafana/Prometheus (82%)
-
-AI/ML EXPERTISE (IIT Delhi Certified):
-- Deep Learning: ANN, CNN, RNN, LSTM
-- NLP & Transformers
-- Computer Vision (YOLOv8)
-- LLMs & Transfer Learning
-- TensorFlow, PyTorch, Hugging Face
-
-ACHIEVEMENTS:
-- Saved $32K+ quarterly through automation
-- Client Service Appreciation for reverse engineering C++ legacy code
-- Won Hackathon challenge across Cognizant worldwide with Insta Quote Android app
-- Implemented fraud detection system and LSTM sales prediction
-
-CONTACT:
-- Email: Shashikmr01991@gmail.com
-- Phone: +91 9940342772
-- LinkedIn: linkedin.com/in/shashi-kumar-6b955b80
-- GitHub: github.com/ShaKuma
-
-Answer questions helpfully and conversationally. If asked about topics not related to Shashi, politely redirect to his expertise.`;
+import { generateChatbotContext } from '../data/portfolioData';
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([
-    { role: 'assistant', content: "Hi! I'm an AI assistant. Ask me anything about Shashi Kumar's experience, skills, or projects!" }
+    { role: 'assistant', content: "Hi! I can tell you about Shashi Kumar's 11+ years of experience, his AI/ML expertise from IIT Delhi, technical skills, or current role at TIS:FIS. What would you like to know?" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -92,7 +35,7 @@ export default function Chatbot() {
       setIsLoading(true);
       setLoadingProgress(0);
 
-      const model = transformersJS('HuggingFaceTB/SmolLM2-360M-Instruct', {
+      const model = transformersJS('HuggingFaceTB/SmolLM2-135M-Instruct', {
         device: 'wasm',
         worker: new Worker(new URL('../chatbot.worker.ts', import.meta.url), {
           type: 'module',
@@ -131,12 +74,24 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
+      // Generate dynamic context from portfolio data
+      const SHASHI_CONTEXT = generateChatbotContext();
+      
       // Format conversation for SmolLM2 (no system messages allowed)
       const conversationHistory = messages
-        .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
+        .filter(msg => msg.role !== 'assistant' || msg.content !== "Hi! I'm an AI assistant. Ask me anything about Shashi Kumar's experience, skills, or projects!")
+        .map(msg => {
+          if (msg.role === 'user') return `Question: ${msg.content}`;
+          return `Answer: ${msg.content}`;
+        })
         .join('\n\n');
       
-      const fullPrompt = `${SHASHI_CONTEXT}\n\n${conversationHistory}\n\nUser: ${userMessage}\n\nAssistant:`;
+      const fullPrompt = `${SHASHI_CONTEXT}
+
+${conversationHistory}
+
+Question: ${userMessage}
+Answer:`;
 
       const result = streamText({
         model: modelRef.current,

@@ -1,54 +1,27 @@
 import { useInView } from '../hooks/useInView';
+import { currentRole, previousExperience } from '../data/portfolioData';
 
 const experiences = [
   {
-    role: 'Associate Lead Software Engineer',
-    company: 'TIS: FIS (Fidelity Information Services)',
-    period: 'June 2020 - Present',
+    role: currentRole.title,
+    company: currentRole.company,
+    period: currentRole.period,
     description: 'Leading AI/ML initiatives and full-stack development for enterprise-grade payment processing systems. Architecting next-generation AI agent platforms, MCP server ecosystems, and organization-wide intelligent automation solutions that serve thousands of internal users.',
-    achievements: [
-      'Architected & developed Model Context Protocol (MCP) servers for GitHub, JIRA, Jenkins, Web Services, Splunk, Windows RDP, and PDF Creator — integrated with VS Code to enable AI-powered development workflows across the organization.',
-      'Designed & built an enterprise-grade Web UI for an Organization-Wide AI ChatBot System, integrating MCP servers to orchestrate seamless external service calls across JIRA, GitHub, Wiki, Jenkins, and more.',
-      'Leveraged the A2A (Agent-to-Agent) open-source protocol for multi-turn agent conversations, cross-agent collaboration, and parallel agent invocation — enabling complex task decomposition across specialized AI agents.',
-      'Implemented Vector Embeddings to create persistent per-user agent memory, delivering context-aware, personalized interactions with long-term recall capabilities.',
-      'Engineered dynamic model routing — allowing users to leverage multiple LLMs simultaneously based on prompt complexity, query type, and performance requirements.',
-      'Built robust security guardrails to prevent PII and sensitive data leakage to external LLMs, ensuring only anonymized data leaves the organization boundary.',
-      'Implemented OWASP Top 10 security remediations specifically tailored for AI agents, hardening the system against prompt injection, data poisoning, and adversarial attacks.',
-      'Developed Early Warning System for fraud account detection in payment processing, reducing fraudulent transactions significantly.',
-      'Implemented ANN (LSTM) model for future sales prediction, enabling data-driven business forecasting.',
-      'Responsible for end-to-end product delivery using automated Jenkins CI/CD pipelines.',
-    ],
+    achievements: currentRole.achievements,
     tech: ['Python', 'React', 'LLMs', 'MCP', 'A2A Protocol', 'Vector Embeddings', 'Jenkins', 'Kafka', 'C#', 'SQL Server'],
   },
-  {
-    role: 'Associate',
-    company: 'Cognizant Technology Solutions',
-    period: 'June 2017 - June 2020',
-    description: 'Finance project aimed at estimating human resource and hardware/software required yearly for running the project. System calculated revenue cost generated monthly, quarterly, and yearly.',
-    achievements: [
-      'Developed background window service for auto-refreshing members list in database based on Active Directory changes using LDAP Protocol — saved $32K quarterly in project costs.',
-      'Created Report Generator using Windows Service for generating large reports based on user requests.',
-      'Implemented Automated Mail Notification system for sending mails after generating bulk reports.',
-      'Worked on code optimization and refactoring based on CAST/SAST/DAST reports for application stability and security.',
-      'Created file upload and download functionality using enterprise content management system with AJAX/JSON.',
-      'Implemented Report generation module using Excel files sent across the network for download.',
-    ],
-    tech: ['ASP.NET', 'MVC', 'C#', 'SQL Server', 'TFS', 'AJAX', 'LDAP'],
-  },
-  {
-    role: 'Programmer Analyst',
-    company: 'Cognizant Technology Solutions',
-    period: 'June 2014 - June 2017',
-    description: 'Innovation Management system handling flow from creating innovation title to approval and implementation. System calculated dollars saved after performing automation using different technologies.',
-    achievements: [
-      'Created Automated Reminder Mail service using in-built .NET components.',
-      'Implemented Macros in Excel for generating and validating backend data.',
-      'Coordinated with clients for enhancement issues and root cause analysis.',
-      'Wrote batch jobs using shell script and PL/SQL.',
-      'Adhered to Agile methodologies during web application development.',
-    ],
-    tech: ['ASP.NET MVC', 'jQuery', 'JavaScript', 'SQL Server', 'PL/SQL'],
-  },
+  ...previousExperience.map((exp, index) => ({
+    role: exp.title,
+    company: exp.company,
+    period: exp.period,
+    description: index === 0 
+      ? 'Finance project aimed at estimating human resource and hardware/software required yearly for running the project. System calculated revenue cost generated monthly, quarterly, and yearly.'
+      : 'Innovation Management system handling flow from creating innovation title to approval and implementation. System calculated dollars saved after performing automation using different technologies.',
+    achievements: exp.achievements,
+    tech: index === 0 
+      ? ['ASP.NET', 'MVC', 'C#', 'SQL Server', 'TFS', 'AJAX', 'LDAP']
+      : ['ASP.NET MVC', 'jQuery', 'JavaScript', 'SQL Server', 'PL/SQL'],
+  })),
 ];
 
 export default function Experience() {

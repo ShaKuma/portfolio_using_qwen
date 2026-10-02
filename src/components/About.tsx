@@ -1,6 +1,7 @@
 import { useInView } from '../hooks/useInView';
 import AnimatedTerminal from './AnimatedTerminal';
 import FloatingParticles from './FloatingParticles';
+import { personalInfo, currentRole, achievements } from '../data/portfolioData';
 
 export default function About() {
   const { ref: sectionRef, isInView } = useInView();
@@ -39,7 +40,7 @@ export default function About() {
           <div className={`reveal-right ${codeVisible ? 'visible' : ''}`} style={{ transitionDelay: '0.2s' }}>
             <div className="space-y-6">
               <h3 className="text-2xl font-bold text-text-primary leading-tight">
-                A passionate full-stack engineer with expertise in AI/ML and automation
+                {currentRole.title} at {currentRole.company}
               </h3>
               <p className="text-text-secondary leading-relaxed text-[15px]">
                 With 11+ years of experience working as a full stack web application developer, I've 
@@ -48,8 +49,8 @@ export default function About() {
                 problems, providing cost-effective solutions that drive real business value.
               </p>
               <p className="text-text-secondary leading-relaxed text-[15px]">
-                Passionate about learning and quickly implementing new technologies as required. My 
-                automation work has saved $32K+ quarterly through innovative engineering solutions.
+                Currently based in {personalInfo.location}, I specialize in building scalable systems 
+                and have {personalInfo.certification.toLowerCase()}.
               </p>
 
               {/* AI/ML Capabilities Highlight */}
