@@ -131,13 +131,16 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
+      // Format conversation for SmolLM2 (no system messages allowed)
+      const conversationHistory = messages
+        .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
+        .join('\n\n');
+      
+      const fullPrompt = `${SHASHI_CONTEXT}\n\n${conversationHistory}\n\nUser: ${userMessage}\n\nAssistant:`;
+
       const result = streamText({
         model: modelRef.current,
-        messages: [
-          { role: 'system', content: SHASHI_CONTEXT },
-          ...messages,
-          { role: 'user', content: userMessage }
-        ],
+        prompt: fullPrompt,
       });
 
       let assistantMessage = '';
