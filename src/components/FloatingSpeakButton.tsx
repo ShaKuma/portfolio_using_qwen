@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { pipeline } from '@huggingface/transformers';
 
 const portfolioSummary = `Hi there! I'm Shashi Kumar, an Associate Lead Software Engineer at TIS, FIS, Fidelity Information Services, based in Noida, India.
 
@@ -19,10 +18,12 @@ Feel free to explore my portfolio to learn more about my projects, skills, and e
 
 export default function FloatingSpeakButton() {
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [isNeuralReady, setIsNeuralReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState('');
+  const [useNeural, setUseNeural] = useState(true); // Toggle between neural and browser TTS
   
   const synthesizerRef = useRef<any>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -35,26 +36,39 @@ export default function FloatingSpeakButton() {
     // Initialize audio context
     audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     
+    // Pre-load neural model in background after page load
+    const timer = setTimeout(() => {
+      loadNeuralModel();
+    }, 3000); // Wait 3 seconds after page load
+    
     return () => {
-      // Cleanup
+      clearTimeout(timer);
       if (sourceNodeRef.current) {
-        sourceNodeRef.current.stop();
+        try {
+          sourceNodeRef.current.stop();
+        } catch (e) {
+          // Ignore if already stopped
+        }
       }
-      if (audioContextRef.current) {
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
         audioContextRef.current.close();
       }
     };
   }, []);
 
-  const loadModel = async () => {
+  const loadNeuralModel = async () => {
     if (synthesizerRef.current) return;
     
     setIsLoading(true);
-    setLoadingProgress('Loading neural TTS model...');
+    setLoadingProgress('Initializing neural TTS...');
     
     try {
-      // Load SpeechT5 TTS model using Transformers.js
-      // This is a transformer-based model that produces natural human-like speech
+      // Dynamic import to avoid loading transformers.js until needed
+      const { pipeline } = await import('@huggingface/transformers');
+      
+      setLoadingProgress('Loading SpeechT5 model...');
+      
+      // Load SpeechT5 TTS model - uses transformer neural network
       synthesizerRef.current = await pipeline(
         'text-to-speech',
         'Xenova/speecht5_tts',
@@ -62,48 +76,100 @@ export default function FloatingSpeakButton() {
           progress_callback: (progress: any) => {
             if (progress.status === 'downloading') {
               const percent = progress.progress ? Math.round(progress.progress) : 0;
-              setLoadingProgress(`Downloading model: ${percent}%`);
+              setLoadingProgress(`Downloading neural model: ${percent}%`);
             } else if (progress.status === 'loading') {
-              setLoadingProgress('Loading model into memory...');
+              setLoadingProgress('Loading into memory...');
+            } else if (progress.status === 'ready') {
+              setLoadingProgress('Model ready!');
             }
           }
         }
       );
       
-      setLoadingProgress('Model ready!');
-      setTimeout(() => setIsLoading(false), 500);
-    } catch (error) {
-      console.error('Failed to load TTS model:', error);
+      setIsNeuralReady(true);
       setIsLoading(false);
-      setLoadingProgress('Failed to load model');
+      setLoadingProgress('');
+    } catch (error) {
+      console.error('Failed to load neural TTS model:', error);
+      setIsLoading(false);
+      setLoadingProgress('Using browser TTS');
+      setUseNeural(false); // Fallback to browser TTS
     }
   };
 
-  const speak = async () => {
-    if (!synthesizerRef.current) {
-      await loadModel();
-      if (!synthesizerRef.current) return;
-    }
-
+  const speakWithNeural = async () => {
+    if (!synthesizerRef.current) return false;
+    
     try {
       setIsSpeaking(true);
       setIsPaused(false);
       
-      // Generate speech using the neural network model
+      // Generate speech using neural network
       const output = await synthesizerRef.current(portfolioSummary, {
-        speaker_embeddings: new Float32Array(512).fill(0), // Default speaker embedding
+        speaker_embeddings: new Float32Array(512).fill(0),
       });
       
-      // Convert to audio buffer
+      // Convert to audio buffer and play
       const audioBuffer = await audioContextRef.current!.decodeAudioData(output.audio.buffer);
       audioBufferRef.current = audioBuffer;
       
-      // Play audio
       playAudio();
+      return true;
     } catch (error) {
-      console.error('Speech generation failed:', error);
-      setIsSpeaking(false);
+      console.error('Neural TTS failed:', error);
+      return false;
     }
+  };
+
+  const speakWithBrowser = () => {
+    if (!('speechSynthesis' in window)) return false;
+    
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(portfolioSummary);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    utterance.lang = 'en-US';
+    
+    // Use best available voice
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(
+      (v) => v.name.includes('Google') && v.lang.startsWith('en')
+    ) || voices.find((v) => v.lang.startsWith('en'));
+    
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+    
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+      setIsPaused(false);
+    };
+    
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      setIsPaused(false);
+    };
+    
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      setIsPaused(false);
+    };
+    
+    window.speechSynthesis.speak(utterance);
+    return true;
+  };
+
+  const speak = async () => {
+    // Try neural TTS first if ready
+    if (useNeural && isNeuralReady) {
+      const success = await speakWithNeural();
+      if (success) return;
+    }
+    
+    // Fallback to browser TTS
+    speakWithBrowser();
   };
 
   const playAudio = () => {
@@ -123,22 +189,37 @@ export default function FloatingSpeakButton() {
   };
 
   const pause = () => {
-    if (sourceNodeRef.current && audioContextRef.current) {
+    if (isNeuralReady && useNeural && sourceNodeRef.current && audioContextRef.current) {
       pauseTimeRef.current = audioContextRef.current.currentTime - startTimeRef.current;
       sourceNodeRef.current.stop();
+      setIsPaused(true);
+    } else if ('speechSynthesis' in window) {
+      window.speechSynthesis.pause();
       setIsPaused(true);
     }
   };
 
   const resume = () => {
-    setIsPaused(false);
-    playAudio();
+    if (isNeuralReady && useNeural) {
+      setIsPaused(false);
+      playAudio();
+    } else if ('speechSynthesis' in window) {
+      window.speechSynthesis.resume();
+      setIsPaused(false);
+    }
   };
 
   const stop = () => {
     if (sourceNodeRef.current) {
-      sourceNodeRef.current.stop();
+      try {
+        sourceNodeRef.current.stop();
+      } catch (e) {
+        // Ignore
+      }
       sourceNodeRef.current = null;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
     }
     pauseTimeRef.current = 0;
     setIsSpeaking(false);
@@ -163,18 +244,20 @@ export default function FloatingSpeakButton() {
         {showTooltip && !isSpeaking && !isLoading && (
           <div className="absolute bottom-full left-0 mb-3 px-4 py-2 bg-dark-card border border-dark-border rounded-lg shadow-xl animate-fade-in whitespace-nowrap">
             <p className="text-sm text-text-primary font-medium">
-              🧠 Neural TTS - Listen to my portfolio
+              {isNeuralReady ? '🧠 Neural TTS Ready' : '🔊 Listen to my portfolio'}
             </p>
-            <p className="text-xs text-text-muted mt-1">Powered by Transformers.js</p>
+            <p className="text-xs text-text-muted mt-1">
+              {isNeuralReady ? 'Powered by SpeechT5 Transformer' : 'Loading neural model...'}
+            </p>
             <div className="absolute bottom-0 left-6 w-2 h-2 bg-dark-card border-r border-b border-dark-border rotate-45 -translate-y-1"></div>
           </div>
         )}
 
         {/* Loading indicator */}
         {isLoading && (
-          <div className="absolute bottom-full left-0 mb-3 px-4 py-3 bg-dark-card border border-primary/30 rounded-lg shadow-xl animate-fade-in">
+          <div className="absolute bottom-full left-0 mb-3 px-4 py-3 bg-dark-card border border-primary/30 rounded-lg shadow-xl animate-fade-in min-w-[200px]">
             <div className="flex items-center gap-3">
-              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
               <div>
                 <p className="text-sm text-text-primary font-medium">Loading Neural TTS</p>
                 <p className="text-xs text-text-muted">{loadingProgress}</p>
@@ -228,7 +311,9 @@ export default function FloatingSpeakButton() {
               ? 'fa-volume-up' 
               : isPaused 
               ? 'fa-pause' 
-              : 'fa-brain'
+              : isNeuralReady
+              ? 'fa-brain'
+              : 'fa-volume-up'
           } text-lg relative z-10`}></i>
         </button>
       </div>
