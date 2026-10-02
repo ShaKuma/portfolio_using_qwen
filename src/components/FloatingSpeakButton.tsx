@@ -111,24 +111,39 @@ export default function FloatingSpeakButton() {
     const audioBuffer = audioContext.createBuffer(1, chunk.audio.length, chunk.sampling_rate);
     audioBuffer.getChannelData(0).set(chunk.audio);
     
-    // Create source and play with slower, more natural pace
+    // Create source and play with natural pace
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
     
-    // Slow down playback for more natural, conversational pace
-    source.playbackRate.value = 0.85;
+    // Adjust playback rate for clearer, more energetic voice
+    source.playbackRate.value = 0.95;
     
-    // Add audio processing for more natural sound
+    // High-pass filter to remove low rumble and mud
+    const highpass = audioContext.createBiquadFilter();
+    highpass.type = 'highpass';
+    highpass.frequency.value = 150;
+    highpass.Q.value = 0.7;
+    
+    // Presence boost for clarity and brightness
+    const presence = audioContext.createBiquadFilter();
+    presence.type = 'peaking';
+    presence.frequency.value = 3000;
+    presence.Q.value = 1.5;
+    presence.gain.value = 3; // +3dB boost
+    
+    // Low-pass filter to remove harsh highs
     const lowpass = audioContext.createBiquadFilter();
     lowpass.type = 'lowpass';
-    lowpass.frequency.value = 3500;
+    lowpass.frequency.value = 6000;
     lowpass.Q.value = 0.7;
     
     const gainNode = audioContext.createGain();
-    gainNode.gain.value = 1.1;
+    gainNode.gain.value = 1.15;
     
-    // Connect: source -> filter -> gain -> destination
-    source.connect(lowpass);
+    // Connect: source -> highpass -> presence -> lowpass -> gain -> destination
+    source.connect(highpass);
+    highpass.connect(presence);
+    presence.connect(lowpass);
     lowpass.connect(gainNode);
     gainNode.connect(audioContext.destination);
     
