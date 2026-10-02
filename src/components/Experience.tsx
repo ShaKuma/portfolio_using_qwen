@@ -2,52 +2,46 @@ import { useInView } from '../hooks/useInView';
 
 const experiences = [
   {
-    role: 'Senior Software Engineer',
-    company: 'TechCorp Inc.',
-    period: '2022 - Present',
-    description: 'Leading the backend architecture team, designing and implementing microservices handling 10M+ daily requests. Mentoring junior developers and driving best practices.',
+    role: 'Associate Lead Software Engineer',
+    company: 'TSYS: Global Payments',
+    period: 'June 2020 - Present',
+    description: 'Finance project aimed at accepting and processing payments in TSYS credit cards from channels like IVR, Call Center, Website, and Mobile application. Involved in end-of-day payment settlement through SQL Jobs while coordinating with acquirer and issuer.',
     achievements: [
-      'Reduced API latency by 60% through caching strategies',
-      'Led migration from monolith to microservices',
-      'Implemented CI/CD reducing deploy time by 80%',
+      'Responsible for end-to-end product delivery using automated Jenkins jobs',
+      'Implemented Early Warning System for fraud account detection',
+      'Implemented ANN (LSTM) for future sales prediction',
+      'Developed framework for Global Payments authorization API integration',
+      'Mentoring resources and handling client calls for requirement discussions',
     ],
-    tech: ['Go', 'Kubernetes', 'AWS', 'PostgreSQL'],
+    tech: ['C#', 'React', 'Jenkins', 'Kafka', 'SQL Server', 'IIS'],
   },
   {
-    role: 'Full Stack Developer',
-    company: 'StartupXYZ',
-    period: '2020 - 2022',
-    description: 'Built the core product from scratch, taking it from MVP to serving 500K+ users. Worked across the entire stack from React frontend to cloud infrastructure.',
+    role: 'Associate',
+    company: 'Cognizant Technology Solutions',
+    period: 'June 2017 - June 2020',
+    description: 'Finance project aimed at estimating human resource and hardware/software required yearly for running the project. System calculated revenue cost generated monthly, quarterly, and yearly.',
     achievements: [
-      'Built real-time collaboration features',
-      'Scaled infrastructure to handle 100x growth',
-      'Implemented comprehensive testing (95% coverage)',
+      'Developed background service saving $32K quarterly through LDAP automation',
+      'Created Report Generator using Windows Service for large report generation',
+      'Implemented Automated Mail Notification system for bulk reports',
+      'Worked on code optimization using CAST/SAST/DAST reports',
+      'Created file upload/download using enterprise content management system',
     ],
-    tech: ['React', 'Node.js', 'MongoDB', 'Docker'],
+    tech: ['ASP.NET', 'MVC', 'C#', 'SQL Server', 'TFS', 'AJAX'],
   },
   {
-    role: 'Software Developer',
-    company: 'Digital Solutions Ltd.',
-    period: '2018 - 2020',
-    description: 'Developed enterprise web applications for Fortune 500 clients. Focused on performance optimization and building reusable component libraries.',
+    role: 'Programmer Analyst',
+    company: 'Cognizant Technology Solutions',
+    period: 'June 2014 - June 2017',
+    description: 'Innovation Management system handling flow from creating innovation title to approval and implementation. System calculated dollars saved after performing automation using different technologies.',
     achievements: [
-      'Built component library used across 12 projects',
-      'Optimized database queries reducing load time by 40%',
-      'Introduced automated testing practices',
+      'Created Automated Reminder Mail service using .NET components',
+      'Implemented Macros in Excel for generating and validating backend data',
+      'Coordinated with clients for enhancement issues and root cause analysis',
+      'Wrote batch jobs using shell script and PL/SQL',
+      'Adhered to Agile methodologies during web application development',
     ],
-    tech: ['TypeScript', 'Vue.js', 'Python', 'PostgreSQL'],
-  },
-  {
-    role: 'Junior Developer',
-    company: 'WebDev Agency',
-    period: '2016 - 2018',
-    description: 'Started my professional career building responsive web applications and learning industry best practices in an agile environment.',
-    achievements: [
-      'Delivered 20+ client projects on time',
-      'Learned agile methodologies and team collaboration',
-      'Contributed to open-source projects',
-    ],
-    tech: ['JavaScript', 'React', 'Node.js', 'MySQL'],
+    tech: ['ASP.NET MVC', 'jQuery', 'JavaScript', 'SQL Server', 'PL/SQL'],
   },
 ];
 
@@ -69,7 +63,7 @@ export default function Experience() {
             Work <span className="gradient-text">Experience</span>
           </h2>
           <p className="mt-4 text-text-secondary max-w-2xl mx-auto">
-            My professional journey building software that makes a difference
+            11+ years of professional experience building scalable solutions
           </p>
           <div className="mt-4 w-16 h-1 gradient-bg rounded-full mx-auto"></div>
         </div>

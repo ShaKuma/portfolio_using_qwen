@@ -18,7 +18,6 @@ export default function Navbar() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
       
-      // Track active section
       const sections = navLinks.map(l => l.href.slice(1));
       for (let i = sections.length - 1; i >= 0; i--) {
         const el = document.getElementById(sections[i]);
@@ -47,11 +46,11 @@ export default function Navbar() {
             <div className="relative w-10 h-10">
               <div className="absolute inset-0 rounded-xl gradient-bg opacity-80 group-hover:opacity-100 transition-opacity"></div>
               <div className="absolute inset-[1px] rounded-[11px] bg-dark-bg flex items-center justify-center">
-                <span className="text-sm font-bold gradient-text">AC</span>
+                <span className="text-sm font-bold gradient-text">SK</span>
               </div>
             </div>
             <span className="text-lg font-bold text-text-primary hidden sm:block">
-              Alex<span className="gradient-text-static">.dev</span>
+              Shashi<span className="gradient-text-static">.dev</span>
             </span>
           </a>
 

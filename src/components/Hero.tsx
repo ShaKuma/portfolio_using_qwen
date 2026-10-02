@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const roles = ['Full Stack Developer', 'Cloud Architect', 'System Designer', 'Open Source Advocate'];
+const roles = ['Full Stack Developer', 'AI/ML Enthusiast', 'Cloud Engineer', 'Tech Lead'];
 
 export default function Hero() {
   const [currentRole, setCurrentRole] = useState(0);
@@ -86,7 +86,7 @@ export default function Hero() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-400"></span>
           </span>
-          <span className="text-sm text-text-secondary font-medium">Available for new opportunities</span>
+          <span className="text-sm text-text-secondary font-medium">Open to new opportunities</span>
         </div>
 
         {/* Main heading with staggered animation */}
@@ -94,7 +94,7 @@ export default function Hero() {
           <h1 className="animate-fade-in-up text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-text-primary leading-[1.1] tracking-tight" style={{ animationDelay: '0.2s' }}>
             Hi, I'm{' '}
             <span className="relative inline-block">
-              <span className="gradient-text">Alex Chen</span>
+              <span className="gradient-text">Shashi Kumar</span>
               <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none">
                 <path d="M2 10C50 4 100 2 150 6C200 10 250 4 298 8" stroke="url(#underline-gradient)" strokeWidth="3" strokeLinecap="round"/>
                 <defs>
@@ -118,9 +118,9 @@ export default function Hero() {
 
         {/* Description */}
         <p className="animate-fade-in-up max-w-2xl mx-auto text-lg text-text-muted mb-12 leading-relaxed" style={{ animationDelay: '0.6s' }}>
-          I craft scalable, high-performance software solutions with 8+ years of experience 
-          building products that serve millions of users. Passionate about clean architecture, 
-          developer experience, and pushing the boundaries of what's possible.
+          11+ years of experience building scalable web applications and AI/ML solutions. 
+          Passionate about clean architecture, automation, and delivering cost-effective 
+          solutions that drive business value.
         </p>
 
         {/* CTA Buttons */}
@@ -139,10 +139,10 @@ export default function Hero() {
         {/* Stats */}
         <div className="animate-fade-in-up mt-20 grid grid-cols-2 sm:grid-cols-4 gap-8" style={{ animationDelay: '1s' }}>
           {[
-            { value: '8+', label: 'Years Experience' },
-            { value: '50+', label: 'Projects Delivered' },
-            { value: '30+', label: 'Happy Clients' },
-            { value: '15K+', label: 'GitHub Stars' },
+            { value: '11+', label: 'Years Experience' },
+            { value: '32K+', label: 'Dollars Saved' },
+            { value: '3', label: 'Companies' },
+            { value: 'IIT', label: 'AI/ML Certified' },
           ].map((stat, i) => (
             <div key={stat.label} className="text-center group cursor-default" style={{ animationDelay: `${1 + i * 0.1}s` }}>
               <div className="text-3xl sm:text-4xl font-bold gradient-text-static group-hover:scale-110 transition-transform duration-300">

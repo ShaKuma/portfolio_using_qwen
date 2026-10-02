@@ -44,25 +44,39 @@ export default function Contact() {
             <div className="glass-card rounded-2xl p-6">
               <h3 className="text-xl font-bold text-text-primary mb-6">Contact Information</h3>
               <div className="space-y-5">
-                {[
-                  { icon: 'fa-envelope', label: 'Email', value: 'alex@example.com', href: 'mailto:alex@example.com' },
-                  { icon: 'fa-phone', label: 'Phone', value: '+1 (555) 123-4567', href: 'tel:+15551234567' },
-                  { icon: 'fa-map-marker-alt', label: 'Location', value: 'San Francisco, CA', href: '#' },
-                ].map((item) => (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    className="flex items-start gap-4 group"
-                  >
-                    <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
-                      <i className={`fas ${item.icon} text-primary-light`}></i>
-                    </div>
-                    <div>
-                      <p className="text-xs text-text-muted font-medium uppercase tracking-wider">{item.label}</p>
-                      <p className="text-text-primary group-hover:text-primary-light transition-colors font-medium">{item.value}</p>
-                    </div>
-                  </a>
-                ))}
+                <a
+                  href="mailto:Shashikmr01991@gmail.com"
+                  className="flex items-start gap-4 group"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
+                    <i className="fas fa-envelope text-primary-light"></i>
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-muted font-medium uppercase tracking-wider">Email</p>
+                    <p className="text-text-primary group-hover:text-primary-light transition-colors font-medium break-all">Shashikmr01991@gmail.com</p>
+                  </div>
+                </a>
+                <a
+                  href="tel:+919940342772"
+                  className="flex items-start gap-4 group"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
+                    <i className="fas fa-phone text-primary-light"></i>
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-muted font-medium uppercase tracking-wider">Phone</p>
+                    <p className="text-text-primary group-hover:text-primary-light transition-colors font-medium">+91 9940342772</p>
+                  </div>
+                </a>
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                    <i className="fas fa-map-marker-alt text-primary-light"></i>
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-muted font-medium uppercase tracking-wider">Location</p>
+                    <p className="text-text-primary font-medium">Noida, India</p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -70,21 +84,29 @@ export default function Contact() {
             <div className="glass-card rounded-2xl p-6">
               <h3 className="text-lg font-bold text-text-primary mb-5">Connect With Me</h3>
               <div className="flex gap-3">
-                {[
-                  { icon: 'fab fa-github', label: 'GitHub', hoverClass: 'hover:bg-gray-800 hover:border-gray-600' },
-                  { icon: 'fab fa-linkedin-in', label: 'LinkedIn', hoverClass: 'hover:bg-blue-600 hover:border-blue-500' },
-                  { icon: 'fab fa-twitter', label: 'Twitter', hoverClass: 'hover:bg-sky-500 hover:border-sky-400' },
-                  { icon: 'fab fa-dev', label: 'Dev.to', hoverClass: 'hover:bg-white hover:border-white hover:text-dark-bg' },
-                ].map((social) => (
-                  <a
-                    key={social.label}
-                    href="#"
-                    aria-label={social.label}
-                    className={`w-12 h-12 rounded-xl bg-dark-card border border-dark-border flex items-center justify-center text-text-muted hover:text-white ${social.hoverClass} transition-all duration-300 hover:scale-110 hover:-translate-y-1`}
-                  >
-                    <i className={`${social.icon} text-lg`}></i>
-                  </a>
-                ))}
+                <a
+                  href="https://github.com/ShaKuma/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub"
+                  className="w-12 h-12 rounded-xl bg-dark-card border border-dark-border flex items-center justify-center text-text-muted hover:text-white hover:bg-gray-800 hover:border-gray-600 transition-all duration-300 hover:scale-110 hover:-translate-y-1"
+                >
+                  <i className="fab fa-github text-lg"></i>
+                </a>
+                <a
+                  href="#"
+                  aria-label="LinkedIn"
+                  className="w-12 h-12 rounded-xl bg-dark-card border border-dark-border flex items-center justify-center text-text-muted hover:text-white hover:bg-blue-600 hover:border-blue-500 transition-all duration-300 hover:scale-110 hover:-translate-y-1"
+                >
+                  <i className="fab fa-linkedin-in text-lg"></i>
+                </a>
+                <a
+                  href="mailto:Shashikmr01991@gmail.com"
+                  aria-label="Email"
+                  className="w-12 h-12 rounded-xl bg-dark-card border border-dark-border flex items-center justify-center text-text-muted hover:text-white hover:bg-primary hover:border-primary transition-all duration-300 hover:scale-110 hover:-translate-y-1"
+                >
+                  <i className="fas fa-envelope text-lg"></i>
+                </a>
               </div>
             </div>
 

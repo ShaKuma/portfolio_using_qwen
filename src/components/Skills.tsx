@@ -2,59 +2,60 @@ import { useInView } from '../hooks/useInView';
 
 const skillCategories = [
   {
-    title: 'Frontend',
+    title: 'Frontend & Web',
     icon: 'fa-laptop-code',
     gradient: 'from-violet-500 to-purple-500',
     skills: [
-      { name: 'React / Next.js', level: 95 },
-      { name: 'TypeScript', level: 92 },
-      { name: 'Vue.js', level: 80 },
-      { name: 'Tailwind CSS', level: 95 },
-      { name: 'HTML/CSS/SCSS', level: 98 },
+      { name: 'ReactJS', level: 90 },
+      { name: 'JavaScript / jQuery', level: 95 },
+      { name: 'ASP.NET MVC', level: 92 },
+      { name: 'HTML / CSS / AJAX', level: 95 },
+      { name: 'JSON / Web APIs', level: 90 },
     ],
   },
   {
-    title: 'Backend',
+    title: 'Backend & Languages',
     icon: 'fa-server',
     gradient: 'from-pink-500 to-rose-500',
     skills: [
-      { name: 'Node.js / Express', level: 93 },
-      { name: 'Python / Django', level: 88 },
-      { name: 'Go', level: 78 },
-      { name: 'GraphQL', level: 85 },
-      { name: 'REST APIs', level: 95 },
+      { name: 'C# / .NET', level: 95 },
+      { name: 'Python', level: 85 },
+      { name: 'C / C++', level: 80 },
+      { name: 'Java', level: 75 },
+      { name: 'Web Services / REST', level: 92 },
     ],
   },
   {
-    title: 'Cloud & DevOps',
-    icon: 'fa-cloud',
+    title: 'AI / Machine Learning',
+    icon: 'fa-brain',
     gradient: 'from-amber-500 to-orange-500',
     skills: [
-      { name: 'AWS (EC2, Lambda, S3)', level: 90 },
-      { name: 'Docker / Kubernetes', level: 88 },
-      { name: 'CI/CD Pipelines', level: 92 },
-      { name: 'Terraform', level: 82 },
-      { name: 'Monitoring (Grafana)', level: 85 },
+      { name: 'TensorFlow / PyTorch', level: 82 },
+      { name: 'YOLOv8 / Computer Vision', level: 78 },
+      { name: 'Hugging Face Transformers', level: 80 },
+      { name: 'LSTM / RNN / NLP', level: 82 },
+      { name: 'LLMs / Transfer Learning', level: 75 },
     ],
   },
   {
-    title: 'Database',
-    icon: 'fa-database',
+    title: 'DevOps & Tools',
+    icon: 'fa-cloud',
     gradient: 'from-emerald-500 to-teal-500',
     skills: [
-      { name: 'PostgreSQL', level: 92 },
-      { name: 'MongoDB', level: 88 },
-      { name: 'Redis', level: 85 },
-      { name: 'Elasticsearch', level: 78 },
-      { name: 'DynamoDB', level: 80 },
+      { name: 'Jenkins / CI-CD', level: 90 },
+      { name: 'Kafka / Messaging Queues', level: 85 },
+      { name: 'SQL Server', level: 92 },
+      { name: 'GIT / TFS', level: 90 },
+      { name: 'Grafana / Prometheus / Splunk', level: 82 },
     ],
   },
 ];
 
 const technologies = [
-  'React', 'Next.js', 'TypeScript', 'Node.js', 'Python', 'Go',
-  'PostgreSQL', 'MongoDB', 'Redis', 'Docker', 'Kubernetes', 'AWS',
-  'GraphQL', 'REST', 'Git', 'Linux', 'Terraform', 'Figma',
+  'ReactJS', 'ASP.NET', 'C#', 'Python', 'JavaScript', 'jQuery',
+  'SQL Server', 'TensorFlow', 'PyTorch', 'Jenkins', 'Kafka', 'Docker',
+  'Web API', 'MVC', 'GIT', 'JIRA', 'Grafana', 'Prometheus',
+  'YOLOv8', 'Hugging Face', 'Selenium', 'LDAP', 'IIS', 'Arduino',
 ];
 
 export default function Skills() {
@@ -76,7 +77,7 @@ export default function Skills() {
             My <span className="gradient-text">Tech Stack</span>
           </h2>
           <p className="mt-4 text-text-secondary max-w-2xl mx-auto">
-            Technologies I work with daily to build robust, scalable applications
+            Technologies I work with daily to build robust, scalable applications and AI solutions
           </p>
           <div className="mt-4 w-16 h-1 gradient-bg rounded-full mx-auto"></div>
         </div>

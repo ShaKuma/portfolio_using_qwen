@@ -2,62 +2,62 @@ import { useInView } from '../hooks/useInView';
 
 const projects = [
   {
-    title: 'CloudScale Platform',
-    description: 'A cloud-native microservices platform handling 10M+ requests/day with auto-scaling, service mesh, and real-time monitoring.',
-    tags: ['Go', 'Kubernetes', 'gRPC', 'Prometheus'],
-    icon: '🏗️',
+    title: 'Auto-Refresh Member Service',
+    description: 'Background window service for auto-refreshing members list in database based on Active Directory changes using LDAP Protocol. Saved $32K quarterly in project costs.',
+    tags: ['C#', 'LDAP', 'Threading', 'Data Structures'],
+    icon: '💰',
     gradient: 'from-violet-600/20 to-purple-600/20',
     github: '#',
     live: '#',
     featured: true,
   },
   {
-    title: 'DataFlow Analytics',
-    description: 'Real-time data analytics dashboard processing streaming data from multiple sources with sub-second latency.',
-    tags: ['React', 'TypeScript', 'Kafka', 'ClickHouse'],
-    icon: '📊',
+    title: 'Insta Quote - Insurance App',
+    description: 'Android prototype for insurance domain - scanning barcodes to fetch product details and searching best insurance policies. Won Hackathon and moved to real-time implementation.',
+    tags: ['Android SDK', 'Java', 'Barcode Scanner', 'Insurance'],
+    icon: '📱',
     gradient: 'from-blue-600/20 to-cyan-600/20',
     github: '#',
     live: '#',
     featured: true,
   },
   {
-    title: 'DevConnect',
-    description: 'Social platform for developers to share projects, collaborate on code, and build their professional network.',
-    tags: ['Next.js', 'PostgreSQL', 'GraphQL', 'Redis'],
-    icon: '👥',
+    title: 'LSTM Sales Prediction',
+    description: 'Implemented Artificial Neural Network (LSTM model) for future sales prediction using deep learning techniques for time-series forecasting.',
+    tags: ['Python', 'TensorFlow', 'LSTM', 'Deep Learning'],
+    icon: '📈',
     gradient: 'from-emerald-600/20 to-teal-600/20',
     github: '#',
     live: '#',
     featured: true,
   },
   {
-    title: 'SecureVault',
-    description: 'End-to-end encrypted password manager with zero-knowledge architecture and cross-platform sync.',
-    tags: ['React Native', 'Node.js', 'MongoDB', 'Crypto'],
-    icon: '🔐',
+    title: 'Text Sentiment Analysis',
+    description: 'Built LSTM model for text sentiment analysis on Amazon product reviews using deep learning for natural language processing.',
+    tags: ['Python', 'LSTM', 'NLP', 'Amazon Reviews'],
+    icon: '🧠',
     gradient: 'from-amber-600/20 to-orange-600/20',
     github: '#',
     live: '#',
     featured: false,
   },
   {
-    title: 'ML Pipeline Orchestrator',
-    description: 'Automated ML pipeline system for training, evaluating, and deploying models at scale with version control.',
-    tags: ['Python', 'TensorFlow', 'Docker', 'FastAPI'],
-    icon: '🤖',
+    title: 'Fraud Detection System',
+    description: 'Implemented Early Warning System for fraud account detection in payment processing application at Global Payments.',
+    tags: ['C#', 'React', 'Analytics', 'Fraud Detection'],
+    icon: '🛡️',
     gradient: 'from-pink-600/20 to-rose-600/20',
     github: '#',
     live: '#',
     featured: false,
   },
   {
-    title: 'EcoTrack',
-    description: 'IoT-powered environmental monitoring system with real-time sensor data visualization and alerting.',
-    tags: ['Vue.js', 'Python', 'InfluxDB', 'MQTT'],
-    icon: '🌱',
+    title: 'Text Generation Model',
+    description: 'Used Hugging Face transformers to build text generation model using pre-trained models. Also implemented text-to-speech pipeline.',
+    tags: ['Hugging Face', 'Transformers', 'LLM', 'TTS'],
+    icon: '🤖',
     gradient: 'from-green-600/20 to-lime-600/20',
-    github: '#',
+    github: 'https://github.com/ShaKuma/',
     live: '#',
     featured: false,
   },
@@ -78,10 +78,10 @@ export default function Projects() {
             Portfolio
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary tracking-tight">
-            Featured <span className="gradient-text">Projects</span>
+            Featured <span className="gradient-text">Projects & Achievements</span>
           </h2>
           <p className="mt-4 text-text-secondary max-w-2xl mx-auto">
-            A selection of projects I've built that showcase my expertise in full-stack development
+            Key projects and innovations that showcase my expertise in full-stack development and AI/ML
           </p>
           <div className="mt-4 w-16 h-1 gradient-bg rounded-full mx-auto"></div>
         </div>
@@ -126,7 +126,7 @@ export default function Projects() {
                 <h3 className="text-lg font-bold text-text-primary mb-2 group-hover:text-primary-light transition-colors duration-300">
                   {project.title}
                 </h3>
-                <p className="text-sm text-text-muted mb-5 line-clamp-2 leading-relaxed">
+                <p className="text-sm text-text-muted mb-5 line-clamp-3 leading-relaxed">
                   {project.description}
                 </p>
 
@@ -149,7 +149,9 @@ export default function Projects() {
         {/* View More */}
         <div className={`text-center mt-16 reveal ${gridVisible ? 'visible' : ''}`} style={{ transitionDelay: '0.6s' }}>
           <a
-            href="#"
+            href="https://github.com/ShaKuma/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="btn-secondary"
           >
             <i className="fab fa-github"></i>

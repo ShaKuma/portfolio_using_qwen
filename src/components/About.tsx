@@ -46,19 +46,19 @@ export default function About() {
                     <span className="text-accent">Developer</span> {'{'}
                   </div>
                   <div className="pl-4 space-y-1.5 mt-2">
-                    <p><span className="text-accent">name</span>: <span className="text-green-400">"Alex Chen"</span>;</p>
-                    <p><span className="text-accent">title</span>: <span className="text-green-400">"Senior Software Engineer"</span>;</p>
-                    <p><span className="text-accent">location</span>: <span className="text-green-400">"San Francisco, CA"</span>;</p>
-                    <p><span className="text-accent">education</span>: <span className="text-green-400">"M.S. CS, Stanford"</span>;</p>
+                    <p><span className="text-accent">name</span>: <span className="text-green-400">"Shashi Kumar"</span>;</p>
+                    <p><span className="text-accent">title</span>: <span className="text-green-400">"Associate Lead Software Engineer"</span>;</p>
+                    <p><span className="text-accent">location</span>: <span className="text-green-400">"Noida, India"</span>;</p>
+                    <p><span className="text-accent">education</span>: <span className="text-green-400">"B.Tech CSE, LPU"</span>;</p>
                     <p className="pt-2"><span className="text-accent">interests</span>: <span className="text-primary-light">string</span>[] = [</p>
                     <div className="pl-4">
-                      <p className="text-green-400">"Scalable Systems",</p>
-                      <p className="text-green-400">"Open Source",</p>
+                      <p className="text-green-400">"Full Stack Development",</p>
+                      <p className="text-green-400">"AI & Machine Learning",</p>
                       <p className="text-green-400">"Cloud Architecture",</p>
-                      <p className="text-green-400">"Developer Experience"</p>
+                      <p className="text-green-400">"Process Automation"</p>
                     </div>
                     <p>];</p>
-                    <p className="pt-2"><span className="text-accent">motto</span> = <span className="text-green-400">"Ship fast, iterate faster"</span>;</p>
+                    <p className="pt-2"><span className="text-accent">motto</span> = <span className="text-green-400">"Innovate, Automate, Deliver"</span>;</p>
                   </div>
                   <div className="text-text-muted mt-2">{'}'}</div>
                 </div>
@@ -70,28 +70,28 @@ export default function About() {
           <div className={`reveal-right ${codeVisible ? 'visible' : ''}`} style={{ transitionDelay: '0.2s' }}>
             <div className="space-y-6">
               <h3 className="text-2xl font-bold text-text-primary leading-tight">
-                A passionate engineer who loves building things that make a difference
+                A passionate full-stack engineer with expertise in AI/ML and automation
               </h3>
               <p className="text-text-secondary leading-relaxed text-[15px]">
-                With over 8 years of experience in software development, I specialize in building 
-                robust, scalable applications using modern technologies. My journey started with 
-                curiosity about how things work under the hood, and it has evolved into a career 
-                focused on creating impactful solutions.
+                With 11+ years of experience in full-stack web application development, I've handled 
+                everything from development to deployment. I'm passionate about learning and quickly 
+                implementing new technologies, with a proven ability to use innovative methods for 
+                processing and troubleshooting problems while providing cost-effective solutions.
               </p>
               <p className="text-text-secondary leading-relaxed text-[15px]">
-                I've had the privilege of working with startups and Fortune 500 companies, 
-                contributing to projects ranging from real-time data processing systems to 
-                consumer-facing applications serving millions of users. I believe in writing 
-                clean, maintainable code and building systems that scale.
+                I completed a Machine Learning and Artificial Intelligence course from IIT Delhi (6 months), 
+                and have built projects including LSTM-based text sentiment analysis, YOLOv8 implementations, 
+                and Hugging Face transformer models. My work has saved companies significant costs through 
+                automation and smart engineering.
               </p>
               
               {/* Quick facts */}
               <div className="grid grid-cols-2 gap-4 pt-6">
                 {[
-                  { icon: 'fa-graduation-cap', text: 'M.S. Computer Science, Stanford' },
-                  { icon: 'fa-briefcase', text: '8+ Years Professional Experience' },
-                  { icon: 'fa-globe', text: 'Remote & On-site Available' },
-                  { icon: 'fa-language', text: 'English, Mandarin' },
+                  { icon: 'fa-graduation-cap', text: 'B.Tech CSE, Lovely Professional University' },
+                  { icon: 'fa-brain', text: 'AI/ML Certified, IIT Delhi' },
+                  { icon: 'fa-briefcase', text: '11+ Years Professional Experience' },
+                  { icon: 'fa-map-marker-alt', text: 'Based in Noida, India' },
                 ].map((item) => (
                   <div key={item.text} className="flex items-start gap-3 group">
                     <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
