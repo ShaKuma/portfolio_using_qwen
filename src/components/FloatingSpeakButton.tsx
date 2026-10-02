@@ -52,6 +52,11 @@ export default function FloatingSpeakButton() {
     };
   }, []);
 
+  // Log progress changes for debugging
+  useEffect(() => {
+    console.log(`Load progress updated: ${loadProgress}%`);
+  }, [loadProgress]);
+
   const loadModelInBackground = async () => {
     try {
       setIsLoading(true);
@@ -70,16 +75,20 @@ export default function FloatingSpeakButton() {
         {
           progress_callback: (progress: any) => {
             console.log('Model progress:', progress);
-            if (progress.status === 'downloading') {
+            
+            if (progress.status === 'progress' || progress.status === 'downloading') {
               const percent = progress.progress ? Math.round(progress.progress) : 0;
-              setLoadProgress(10 + (percent * 0.8)); // 10-90%
+              const mappedProgress = 10 + (percent * 0.8); // 10-90%
+              console.log(`Download progress: ${percent}% → Mapped: ${mappedProgress}%`);
+              setLoadProgress(mappedProgress);
             } else if (progress.status === 'loading') {
+              console.log('Loading model into memory...');
               setLoadProgress(95);
-            } else if (progress.status === 'ready') {
+            } else if (progress.status === 'ready' || progress.status === 'done') {
+              console.log('Neural TTS model ready!');
               setLoadProgress(100);
               setIsLoading(false);
               setModelReady(true);
-              console.log('Neural TTS model ready!');
             }
           }
         }
@@ -208,26 +217,37 @@ export default function FloatingSpeakButton() {
     <>
       {/* Floating Button with Label */}
       <div className="fixed bottom-8 left-8 z-50 flex items-center gap-3">
-        {/* Tooltip */}
-        {showTooltip && (
+        {/* Persistent Progress Indicator (shows during loading even without hover) */}
+        {isLoading && (
+          <div className="absolute bottom-full left-0 mb-3 px-4 py-3 bg-dark-card border border-primary/30 rounded-lg shadow-xl animate-fade-in min-w-[220px]">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center flex-shrink-0">
+                <i className="fas fa-brain text-primary-light animate-pulse text-sm"></i>
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-semibold text-text-primary">Loading Neural TTS</p>
+                <p className="text-[10px] text-text-muted">SpeechT5 Transformer</p>
+              </div>
+              <span className="text-xs font-bold text-primary-light">{Math.round(loadProgress)}%</span>
+            </div>
+            {/* Progress bar */}
+            <div className="w-full h-1.5 bg-dark-bg rounded-full overflow-hidden">
+              <div 
+                className="h-full gradient-bg rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${loadProgress}%` }}
+              ></div>
+            </div>
+            <div className="absolute bottom-0 left-6 w-2 h-2 bg-dark-card border-r border-b border-primary/30 rotate-45 -translate-y-1"></div>
+          </div>
+        )}
+
+        {/* Tooltip (shows on hover when not loading) */}
+        {showTooltip && !isLoading && (
           <div className="absolute bottom-full left-0 mb-3 px-4 py-2.5 bg-dark-card border border-dark-border rounded-lg shadow-xl animate-fade-in whitespace-nowrap">
-            {isLoading ? (
-              <>
-                <p className="text-sm text-text-primary font-medium">
-                  🧠 Loading Neural TTS Engine
-                </p>
-                <p className="text-xs text-text-muted mt-1">
-                  SpeechT5 Transformer: {Math.round(loadProgress)}%
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="text-sm text-text-primary font-medium">
-                  🧠 AI-Powered Portfolio Summary
-                </p>
-                <p className="text-xs text-text-muted mt-1">Powered by SpeechT5 Transformer</p>
-              </>
-            )}
+            <p className="text-sm text-text-primary font-medium">
+              🧠 AI-Powered Portfolio Summary
+            </p>
+            <p className="text-xs text-text-muted mt-1">Powered by SpeechT5 Transformer</p>
             <div className="absolute bottom-0 left-6 w-2 h-2 bg-dark-card border-r border-b border-dark-border rotate-45 -translate-y-1"></div>
           </div>
         )}
