@@ -105,31 +105,50 @@ User Message: ${userMessage}
 
 Please respond appropriately based on the instructions above.`;
 
-      console.log('Sending message to /chat_response endpoint...');
+      console.log('Sending message to /chat_response endpoint with streaming...');
       console.log('Conversation history length:', conversationHistoryRef.current.length);
 
-      // Use the /chat_response endpoint (as confirmed by user)
-      const result = await clientRef.current.predict("/chat_response", {
+      // Use streaming for real-time response
+      const stream = await clientRef.current.stream("/chat_response", {
         message: messageWithContext,
       });
 
-      console.log('API Response:', result);
-
-      // Extract the response
       let assistantMessage = "";
-      
-      if (result && result.data) {
-        if (typeof result.data === 'string') {
-          assistantMessage = result.data;
-        } else if (Array.isArray(result.data) && result.data.length > 0) {
-          assistantMessage = result.data[result.data.length - 1] || result.data[0];
-        } else if (result.data.message) {
-          assistantMessage = result.data.message;
-        } else if (result.data.response) {
-          assistantMessage = result.data.response;
-        } else if (result.data.text) {
-          assistantMessage = result.data.text;
+
+      // Process streaming response
+      for await (const chunk of stream) {
+        console.log('Received chunk:', chunk);
+        
+        // Extract text from chunk
+        let chunkText = "";
+        if (typeof chunk === 'string') {
+          chunkText = chunk;
+        } else if (chunk.data) {
+          if (typeof chunk.data === 'string') {
+            chunkText = chunk.data;
+          } else if (Array.isArray(chunk.data)) {
+            chunkText = chunk.data.join('');
+          } else if (chunk.data.message) {
+            chunkText = chunk.data.message;
+          } else if (chunk.data.response) {
+            chunkText = chunk.data.response;
+          } else if (chunk.data.text) {
+            chunkText = chunk.data.text;
+          }
         }
+
+        // Append to full message
+        assistantMessage += chunkText;
+
+        // Update UI in real-time
+        setMessages(prev => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1] = { 
+            role: 'assistant', 
+            content: assistantMessage 
+          };
+          return newMessages;
+        });
       }
 
       // Clean up the response
@@ -137,17 +156,15 @@ Please respond appropriately based on the instructions above.`;
       
       if (!assistantMessage || assistantMessage.length < 3) {
         assistantMessage = "I apologize, but I couldn't generate a proper response. Please try asking your question again.";
+        setMessages(prev => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1] = { 
+            role: 'assistant', 
+            content: assistantMessage 
+          };
+          return newMessages;
+        });
       }
-
-      // Update the assistant message
-      setMessages(prev => {
-        const newMessages = [...prev];
-        newMessages[newMessages.length - 1] = { 
-          role: 'assistant', 
-          content: assistantMessage 
-        };
-        return newMessages;
-      });
 
       // CRUCIAL: Append this interaction to conversation history for memory
       conversationHistoryRef.current.push({ role: "user", content: userMessage });
@@ -224,7 +241,13 @@ Please respond appropriately based on the instructions above.`;
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-dark-bg">
-            {messages.map((msg, idx) => (
+            {messages.map((msg, idx) => {
+              // Skip rendering empty assistant messages (they're just placeholders for streaming)
+              if (msg.role === 'assistant' && msg.content === '' && isLoading) {
+                return null;
+              }
+              
+              return (
               <div
                 key={idx}
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -265,10 +288,11 @@ Please respond appropriately based on the instructions above.`;
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
             
-            {/* Loading indicator */}
-            {isLoading && messages[messages.length - 1]?.role === 'user' && (
+            {/* Loading indicator - show when loading and last message is empty assistant message */}
+            {isLoading && messages[messages.length - 1]?.role === 'assistant' && messages[messages.length - 1]?.content === '' && (
               <div className="flex justify-start">
                 <div className="bg-dark-card border border-dark-border rounded-2xl px-4 py-2.5">
                   <div className="flex gap-1">
