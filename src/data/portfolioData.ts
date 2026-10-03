@@ -7,13 +7,13 @@ export const personalInfo = {
   location: "Noida, India",
   linkedin: "linkedin.com/in/shashi-kumar-6b955b80",
   github: "github.com/ShaKuma",
-  education: "B.Tech CSE from Lovely Professional University (7.87/10)",
+  education: "B.Tech CSE from Lovely Professional University",
   certification: "AI/ML certified from IIT Delhi (6 months, Feb-Aug 2024)",
 };
 
 export const currentRole = {
   title: "Associate Lead Software Engineer",
-  company: "TIS: FIS (Fidelity Information Services)",
+  company: "FIS (Fidelity Information Services)",
   period: "June 2020 - Present",
   achievements: [
     "Architected & developed Model Context Protocol (MCP) servers for GitHub, JIRA, Jenkins, Web Services, Splunk, Windows RDP, and PDF Creator — integrated with VS Code to enable AI-powered development workflows across the organization.",
@@ -146,81 +146,3 @@ export const achievements = [
   "Won Cognizant worldwide Hackathon with Insta Quote Android app",
   "Client Service Appreciation for C++ reverse engineering",
 ];
-
-export const education = [
-  {
-    degree: "B.Tech in Computer Science Engineering",
-    institute: "Lovely Professional University",
-    year: "2010-2014",
-    score: "7.87/10 CGPA",
-  },
-  {
-    degree: "HSC (Class 12th)",
-    institute: "S.R. Century Public School (CBSE)",
-    year: "2009",
-    score: "80.2%",
-  },
-  {
-    degree: "SSC (Class 10th)",
-    institute: "S.R. Century Public School (CBSE)",
-    year: "2007",
-    score: "84.3%",
-  },
-];
-
-export const certifications = [
-  "Artificial Intelligence and Machine Learning for Industry - IIT Delhi (Feb-Aug 2024)",
-  "Microsoft App fest, Jalandhar (Feb 2013)",
-  "Microsoft Tech Days, Lovely Professional University (Oct 2010)",
-  "C# Certification course - Lovely Centre for Skill Development (2013)",
-  "Android Application Development - Lovely Centre for Skill Development (2013)",
-];
-
-export const courseProjects = [
-  {
-    title: "Implementing Sensor technology in automobiles with UI interface designed in android and online tracking",
-    description: "Final year project. Aim was to switch the gears using sensors and displaying the status of the gear currently engaged on the android application. Communication between sensor and android device was done by the Bluetooth technology. Implementation of website using j2ee technology further connected to SQL Server database to keep the history of the location coordinates of the vehicle. This way we were able to track the automobile position all over the globe online.",
-  },
-  {
-    title: "Android application development – Thief Tracker",
-    description: "Third year project. Aimed at searching the lost mobile phones, idea is to get the co-ordinates of the mobile phone through SMS and emails even if the person has changed his mobile number. Backend service implementation and hiding the details of the application running is also the main motive so that thief cannot know about such service and by force stop this to avoid his knows about.",
-  },
-  {
-    title: "Representation of graph through adjacency matrix using C Graphics",
-    description: "Second year project. User interactive program giving him the exposure about the graph theory through adjacency matrix. User can enter the matrix element and can see the detailed implementation of graph step by step. Idea was to learn this representation through animation.",
-  },
-];
-
-// Function to generate compact context for chatbot
-export function generateChatbotContext(): string {
-  // Create a more compact version to avoid "Bad request" errors
-  const skillsList = Object.entries(skills)
-    .map(([category, items]) => `${category}: ${items.map(s => s.name).join(", ")}`)
-    .join("; ");
-
-  const projectsList = projects
-    .map(p => `${p.title} (${p.tags.join(", ")})`)
-    .join("; ");
-
-  const achievementsList = currentRole.achievements.slice(0, 10).join("; ");
-
-  return `Shashi Kumar Portfolio Data:
-Name: ${personalInfo.name}
-Email: ${personalInfo.email}
-Phone: ${personalInfo.phone}
-Location: ${personalInfo.location}
-LinkedIn: ${personalInfo.linkedin}
-GitHub: ${personalInfo.github}
-Experience: 11+ years full stack developer
-Education: ${personalInfo.education}
-AI/ML: ${personalInfo.certification}
-Current Role: ${currentRole.title} at ${currentRole.company} (${currentRole.period})
-Key Achievements: ${achievementsList}
-Previous: ${previousExperience.map(e => `${e.title} at ${e.company} (${e.period})`).join("; ")}
-Skills: ${skillsList}
-Projects: ${projectsList}
-Education History: B.Tech CSE LPU 2010-2014 (7.87/10), HSC CBSE 2009 (80.2%), SSC CBSE 2007 (84.3%)
-Certifications: ${certifications.join("; ")}
-Course Projects: ${courseProjects.map(p => p.title).join("; ")}
-Major Achievements: ${achievements.join("; ")}`;
-}
