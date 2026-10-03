@@ -16,10 +16,26 @@ export const currentRole = {
   company: "TIS: FIS (Fidelity Information Services)",
   period: "June 2020 - Present",
   achievements: [
-    "Built MCP servers for GitHub, JIRA, Jenkins, Splunk, Windows RDP, PDF Creator",
-    "Created enterprise AI ChatBot with A2A protocol for multi-agent conversations",
-    "Implemented vector embeddings for user memory and security guardrails for PII protection",
-    "Developed fraud detection system and LSTM sales prediction model",
+    "Architected & developed Model Context Protocol (MCP) servers for GitHub, JIRA, Jenkins, Web Services, Splunk, Windows RDP, and PDF Creator — integrated with VS Code to enable AI-powered development workflows across the organization.",
+    "Designed & built an enterprise-grade Web UI for an Organization-Wide AI ChatBot System, integrating MCP servers to orchestrate seamless external service calls across JIRA, GitHub, Wiki, Jenkins, and more.",
+    "Leveraged the A2A (Agent-to-Agent) open-source protocol for multi-turn agent conversations, cross-agent collaboration, and parallel agent invocation — enabling complex task decomposition across specialized AI agents.",
+    "Implemented Vector Embeddings to create persistent per-user agent memory, delivering context-aware, personalized interactions with long-term recall capabilities.",
+    "Engineered dynamic model routing — allowing users to leverage multiple LLMs simultaneously based on prompt complexity, query type, and performance requirements.",
+    "Built robust security guardrails to prevent PII and sensitive data leakage to external LLMs, ensuring only anonymized data leaves the organization boundary.",
+    "Implemented OWASP Top 10 security remediations specifically tailored for AI agents, hardening the system against prompt injection, data poisoning, and adversarial attacks.",
+    "Developed Early Warning System for fraud account detection in payment processing, reducing fraudulent transactions significantly.",
+    "Implemented ANN (LSTM) model for future sales prediction, enabling data-driven business forecasting.",
+    "Responsible for end to end product delivery using automated jenkins jobs",
+    "Efficient in configuring and deploying new web apps on IIS",
+    "Handling resources and mentoring them on the technology and business model",
+    "Using Agile methodologies, involved in web app development using c#, React, Jquery, Javascript, CSS",
+    "Knowledge of messaging queues such as Kafka and IBM websphere",
+    "Responsible for automation of several jobs using Jenkins.",
+    "Responsible for creating automated Smoke testing job using selenium driver for website",
+    "Engaged in migration of products to upper versions and cloud",
+    "Responsible for handling client calls and requirement discussions",
+    "Developed framework for integration of Global payments authorization API.",
+    "Actively participated in hiring process of candidates for several Job profiles",
   ],
 };
 
@@ -125,28 +141,44 @@ export function generateChatbotContext(): string {
     .join("\n");
 
   const projectsText = projects
-    .map(p => `- ${p.title}`)
+    .map(p => `- ${p.title}: ${p.description}`)
     .join("\n");
 
-  const experienceText = [
-    `${currentRole.title} at ${currentRole.company} (${currentRole.period})`,
-    ...previousExperience.map(exp => `${exp.title} at ${exp.company} (${exp.period})`),
-  ].join("\n");
+  const currentRoleText = `${currentRole.title} at ${currentRole.company} (${currentRole.period})
+Key Projects and Achievements:
+${currentRole.achievements.map(a => `- ${a}`).join("\n")}`;
+
+  const previousExperienceText = previousExperience
+    .map(exp => `${exp.title} at ${exp.company} (${exp.period})
+${exp.achievements.map(a => `- ${a}`).join("\n")}`)
+    .join("\n\n");
 
   return `You are an AI assistant for Shashi Kumar's portfolio. Answer questions using ONLY the facts below.
 
-FACTS:
+PERSONAL INFORMATION:
 Name: ${personalInfo.name}
-Experience: 11+ years full stack developer
-Current Job: ${currentRole.title} at ${currentRole.company}
-Location: ${personalInfo.location}
-Education: ${personalInfo.education}
-AI/ML Training: ${personalInfo.certification}
-Work: ${experienceText}
-Skills: ${skillsText}
-Projects: ${projectsText}
 Email: ${personalInfo.email}
 Phone: ${personalInfo.phone}
+Location: ${personalInfo.location}
+LinkedIn: ${personalInfo.linkedin}
+GitHub: ${personalInfo.github}
+Education: ${personalInfo.education}
+AI/ML Certification: ${personalInfo.certification}
+
+CURRENT ROLE:
+${currentRoleText}
+
+PREVIOUS EXPERIENCE:
+${previousExperienceText}
+
+SKILLS:
+${skillsText}
+
+PROJECTS:
+${projectsText}
+
+ACHIEVEMENTS:
+${achievements.map(a => `- ${a}`).join("\n")}
 
 EXAMPLES:
 Q: What is your name?
@@ -159,13 +191,15 @@ Q: Where did you study AI/ML?
 A: Shashi completed AI/ML certification from IIT Delhi (6 months, Feb-Aug 2024).
 
 Q: What is your current role?
-A: Shashi is an ${currentRole.title} at ${currentRole.company}.
+A: Shashi is an ${currentRole.title} at ${currentRole.company} since ${currentRole.period}.
 
-Q: Tell me about your experience
-A: Shashi has 11+ years experience. Currently ${currentRole.title} at ${currentRole.company}. Previously worked at Cognizant Technology Solutions.
+Q: What projects is he working on at TIS: FIS?
+A: At TIS: FIS, Shashi is working on several major projects including: 1) MCP Servers ecosystem for GitHub, JIRA, Jenkins, Splunk, Windows RDP, and PDF Creator integrated with VS Code, 2) Enterprise AI ChatBot Platform with A2A protocol for multi-agent conversations, 3) Vector Embeddings for per-user agent memory, 4) Security guardrails for PII protection, and 5) OWASP Top 10 security implementations for AI agents.
 
 RULES:
-- Answer in 1-2 sentences only
+- When asked about projects, ALWAYS list specific project names and details
+- Provide detailed answers with specific examples
+- Be comprehensive but concise (3-5 sentences for detailed questions)
 - Use ONLY the facts above
 - Never repeat the question
 - Never say "hey" or greet

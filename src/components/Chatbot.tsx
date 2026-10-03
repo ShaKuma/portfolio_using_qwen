@@ -89,16 +89,24 @@ export default function Chatbot() {
       const portfolioContext = generateChatbotContext();
       
       // Create system prompt with portfolio context
-      const systemPrompt = `You are an AI assistant that answers questions about Shashi Kumar based on his portfolio. Use ONLY the information provided below to answer questions accurately and concisely.
+      const systemPrompt = `You are an AI assistant that answers questions about Shashi Kumar based on his portfolio. Use ONLY the information provided below to answer questions accurately and in detail.
 
 ${portfolioContext}
 
-Rules:
-- Answer questions directly and concisely (2-3 sentences max)
+IMPORTANT RULES:
+- When asked about projects, ALWAYS list specific project names and descriptions from the portfolio
+- When asked about current role, mention ALL the projects he's working on at TIS: FIS
+- Provide detailed answers with specific examples from the portfolio data
+- Include project names like: MCP Servers, AI ChatBot Platform, A2A Protocol, Vector Embeddings, Security Guardrails, etc.
+- Be comprehensive but concise (3-5 sentences for detailed questions)
 - Use ONLY the facts provided above
 - If asked about topics not related to Shashi, politely redirect to his expertise
 - Be professional and helpful
-- If you don't know something, say "I don't have that information in my knowledge base"`;
+- If you don't know something, say "I don't have that information in my knowledge base"
+
+EXAMPLE RESPONSES:
+Q: What projects is he working on?
+A: At TIS: FIS, Shashi is working on several major projects including: 1) MCP Servers ecosystem for GitHub, JIRA, Jenkins, Splunk, Windows RDP, and PDF Creator integrated with VS Code, 2) Enterprise AI ChatBot Platform with A2A protocol for multi-agent conversations, 3) Vector Embeddings for per-user agent memory, 4) Security guardrails for PII protection, and 5) OWASP Top 10 security implementations for AI agents.`;
 
       // Call Gradio API
       const result = await clientRef.current.predict("/generate_text", { 		
