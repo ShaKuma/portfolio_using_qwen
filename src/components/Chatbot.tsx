@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Client } from "@gradio/client";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { generateChatbotContext } from '../data/portfolioData';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -22,6 +23,7 @@ export default function Chatbot() {
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const clientRef = useRef<any>(null);
+  const conversationHistoryRef = useRef<Array<{role: string, content: string}>>([]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -43,19 +45,15 @@ export default function Chatbot() {
       setIsLoading(true);
       setError(null);
       
-      // Try with full URL first
-      const client = await Client.connect("https://shkumar1991-llm-chat-custom.hf.space");
+      const client = await Client.connect("shkumar1991/llm-chat-custom");
       clientRef.current = client;
       setIsConnected(true);
       setIsLoading(false);
     } catch (err: any) {
       console.error('Failed to connect to Gradio client:', err);
       
-      // Try alternative connection method
       try {
-        const client = await Client.connect("shkumar1991/llm-chat-custom", {
-          hf_token: undefined,
-        });
+        const client = await Client.connect("https://shkumar1991-llm-chat-custom.hf.space");
         clientRef.current = client;
         setIsConnected(true);
         setIsLoading(false);
@@ -80,59 +78,84 @@ export default function Chatbot() {
     const userMessage = input.trim();
     setInput('');
     
-    // Add user message
+    // Add user message to UI
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
     setError(null);
 
+    // Add empty assistant message for streaming
+    setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
     try {
-      // Note: System prompt and portfolio context are handled server-side in the Gradio Space
-      // We only need to send the user message
+      // Get complete portfolio context
+      const portfolioContext = generateChatbotContext();
+      
+      // Build system persona with strict portfolio-only rules
+      const systemPersona = `You are a helpful AI assistant for Shashi Kumar's portfolio website. You have access to detailed information about Shashi's professional background.
 
-      console.log('Sending message to /chat_response:', userMessage);
+${portfolioContext}
 
-      // Call Gradio Chat API with correct endpoint
-      const result = await clientRef.current.predict("/chat_response", { 		
-        message: userMessage,
+STRICT RULES:
+1. You must ONLY answer questions about Shashi Kumar's professional background, experience, skills, projects, education, certifications, and achievements.
+2. If asked about anything unrelated to Shashi's portfolio, politely respond: "I'm here to help you learn about Shashi Kumar's professional background. Feel free to ask about his experience, skills, projects, education, or certifications!"
+3. Be conversational and friendly. Greet users warmly when they say hi/hello/hey.
+4. Provide detailed, specific answers using ONLY the portfolio data provided above.
+5. List specific project names, technologies, achievements, and dates when relevant.
+6. Be comprehensive but concise (2-4 sentences for most questions).
+7. Reference previous messages in the conversation when relevant to maintain context.
+8. Use markdown formatting for better readability (bold, lists, code blocks, etc.).
+9. Never make up information that is not in the portfolio data.
+10. If you don't know something that's not in the portfolio, say "I don't have that information in Shashi's portfolio."`;
+
+      // Format the structured message as per the Space's expected format
+      const structuredMessage = `[SYSTEM]: ${systemPersona} [QUERY]: ${userMessage}`;
+
+      console.log('Streaming response from Gradio Space...');
+
+      // Use the /chat endpoint with streaming
+      const submission = clientRef.current.stream("/chat", {
+        message: structuredMessage,
+        history: conversationHistoryRef.current
       });
 
-      console.log('Gradio Chat API result:', result);
+      let finalAssistantResponse = "";
 
-      // Extract response from Gradio API
-      let assistantMessage = "Sorry, I couldn't generate a response.";
-      
-      if (result && result.data) {
-        // Handle different response formats
-        if (typeof result.data === 'string') {
-          assistantMessage = result.data;
-        } else if (Array.isArray(result.data) && result.data.length > 0) {
-          // If it's an array, get the first element or last element
-          assistantMessage = result.data[result.data.length - 1] || result.data[0];
-        } else if (result.data.message) {
-          assistantMessage = result.data.message;
-        } else if (result.data.response) {
-          assistantMessage = result.data.response;
-        } else if (result.data.text) {
-          assistantMessage = result.data.text;
-        }
+      // Stream tokens as they arrive
+      for await (const chunk of submission) {
+        const currentMessages = chunk.data;
+        const lastTurn = currentMessages[currentMessages.length - 1];
+        
+        finalAssistantResponse = lastTurn.content || lastTurn;
+        
+        // Update the assistant message in real-time
+        setMessages(prev => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1] = { 
+            role: 'assistant', 
+            content: finalAssistantResponse 
+          };
+          return newMessages;
+        });
       }
-      
-      // Clean up the response
-      assistantMessage = assistantMessage.trim();
-      
-      if (!assistantMessage || assistantMessage.length < 3) {
-        assistantMessage = "I apologize, but I couldn't generate a proper response. Please try asking your question again.";
-      }
-      
-      // Add assistant message
-      setMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
+
+      // CRUCIAL: Append this interaction to conversation history for memory
+      conversationHistoryRef.current.push({ role: "user", content: userMessage });
+      conversationHistoryRef.current.push({ role: "assistant", content: finalAssistantResponse });
+
+      console.log('Conversation history updated:', conversationHistoryRef.current.length, 'messages');
+
     } catch (err) {
       console.error('Error generating response:', err);
       setError('Failed to get response. Please try again.');
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: 'Sorry, I encountered an error. Please try again.' 
-      }]);
+      setMessages(prev => {
+        const newMessages = [...prev];
+        // Replace the empty assistant message with error
+        newMessages[newMessages.length - 1] = { 
+          role: 'assistant', 
+          content: 'Sorry, I encountered an error. Please try again.' 
+        };
+        return newMessages;
+      });
     } finally {
       setIsLoading(false);
     }
