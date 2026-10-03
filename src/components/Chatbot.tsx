@@ -90,69 +90,80 @@ export default function Chatbot() {
       // Get complete portfolio context
       const portfolioContext = generateChatbotContext();
       
-      // Build system persona with strict portfolio-only rules
-      const systemPersona = `You are a helpful AI assistant for Shashi Kumar's portfolio website. You have access to detailed information about Shashi's professional background.
+      // Build the message with portfolio context included
+      const messageWithContext = `${portfolioContext}
 
-${portfolioContext}
+User Question: ${userMessage}
 
-STRICT RULES:
-1. You must ONLY answer questions about Shashi Kumar's professional background, experience, skills, projects, education, certifications, and achievements.
-2. If asked about anything unrelated to Shashi's portfolio, politely respond: "I'm here to help you learn about Shashi Kumar's professional background. Feel free to ask about his experience, skills, projects, education, or certifications!"
-3. Be conversational and friendly. Greet users warmly when they say hi/hello/hey.
-4. Provide detailed, specific answers using ONLY the portfolio data provided above.
-5. List specific project names, technologies, achievements, and dates when relevant.
-6. Be comprehensive but concise (2-4 sentences for most questions).
-7. Reference previous messages in the conversation when relevant to maintain context.
-8. Use markdown formatting for better readability (bold, lists, code blocks, etc.).
-9. Never make up information that is not in the portfolio data.
-10. If you don't know something that's not in the portfolio, say "I don't have that information in Shashi's portfolio."`;
+Please answer the question above using ONLY the portfolio information provided. Be concise and specific.`;
 
-      // Format the structured message as per the Space's expected format
-      const structuredMessage = `[SYSTEM]: ${systemPersona} [QUERY]: ${userMessage}`;
+      console.log('Sending message to /chat_response endpoint...');
+      console.log('Conversation history length:', conversationHistoryRef.current.length);
 
-      console.log('Streaming response from Gradio Space...');
-
-      // Use the /chat endpoint with streaming
-      const submission = clientRef.current.stream("/chat", {
-        message: structuredMessage,
-        history: conversationHistoryRef.current
+      // Use the /chat_response endpoint (as confirmed by user)
+      const result = await clientRef.current.predict("/chat_response", {
+        message: messageWithContext,
       });
 
-      let finalAssistantResponse = "";
+      console.log('API Response:', result);
 
-      // Stream tokens as they arrive
-      for await (const chunk of submission) {
-        const currentMessages = chunk.data;
-        const lastTurn = currentMessages[currentMessages.length - 1];
-        
-        finalAssistantResponse = lastTurn.content || lastTurn;
-        
-        // Update the assistant message in real-time
-        setMessages(prev => {
-          const newMessages = [...prev];
-          newMessages[newMessages.length - 1] = { 
-            role: 'assistant', 
-            content: finalAssistantResponse 
-          };
-          return newMessages;
-        });
+      // Extract the response
+      let assistantMessage = "";
+      
+      if (result && result.data) {
+        if (typeof result.data === 'string') {
+          assistantMessage = result.data;
+        } else if (Array.isArray(result.data) && result.data.length > 0) {
+          assistantMessage = result.data[result.data.length - 1] || result.data[0];
+        } else if (result.data.message) {
+          assistantMessage = result.data.message;
+        } else if (result.data.response) {
+          assistantMessage = result.data.response;
+        } else if (result.data.text) {
+          assistantMessage = result.data.text;
+        }
       }
+
+      // Clean up the response
+      assistantMessage = assistantMessage.trim();
+      
+      if (!assistantMessage || assistantMessage.length < 3) {
+        assistantMessage = "I apologize, but I couldn't generate a proper response. Please try asking your question again.";
+      }
+
+      // Update the assistant message
+      setMessages(prev => {
+        const newMessages = [...prev];
+        newMessages[newMessages.length - 1] = { 
+          role: 'assistant', 
+          content: assistantMessage 
+        };
+        return newMessages;
+      });
 
       // CRUCIAL: Append this interaction to conversation history for memory
       conversationHistoryRef.current.push({ role: "user", content: userMessage });
-      conversationHistoryRef.current.push({ role: "assistant", content: finalAssistantResponse });
+      conversationHistoryRef.current.push({ role: "assistant", content: assistantMessage });
 
       console.log('Conversation history updated:', conversationHistoryRef.current.length, 'messages');
 
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error generating response:', err);
-      setError('Failed to get response. Please try again.');
+      console.error('Error details:', {
+        message: err.message,
+        stack: err.stack,
+        name: err.name
+      });
+      
+      const errorMessage = err.message || 'Unknown error occurred';
+      setError(`Failed to get response: ${errorMessage}`);
+      
       setMessages(prev => {
         const newMessages = [...prev];
         // Replace the empty assistant message with error
         newMessages[newMessages.length - 1] = { 
           role: 'assistant', 
-          content: 'Sorry, I encountered an error. Please try again.' 
+          content: `Sorry, I encountered an error: ${errorMessage}. Please try again.` 
         };
         return newMessages;
       });
