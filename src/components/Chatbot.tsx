@@ -91,45 +91,64 @@ export default function Chatbot() {
       const portfolioContext = generateChatbotContext();
       
       // Create system prompt with portfolio context
-      const systemPrompt = `You are a friendly and helpful AI assistant for Shashi Kumar's portfolio website. Your role is to answer questions about Shashi's professional background.
+      // Gradio Chat Interface will handle conversation history automatically
+      const systemPrompt = `You are a friendly and helpful AI assistant for Shashi Kumar's portfolio website. You have access to detailed information about Shashi's professional background.
 
 ${portfolioContext}
 
 GUIDELINES:
-1. Be conversational and friendly. You can greet users warmly (e.g., "Hi there!", "Hello!", "Hey!").
-2. When asked about Shashi's work, experience, skills, projects, education, or certifications, provide detailed, specific answers using the information above.
+1. Be conversational and friendly. Greet users warmly when they say hi/hello/hey.
+2. Provide detailed, specific answers about Shashi's work, experience, skills, projects, education, and certifications.
 3. List specific project names, technologies, achievements, and dates when relevant.
-4. For greetings or casual messages, respond warmly and offer to help with questions about Shashi.
-5. If asked about topics unrelated to Shashi's professional background, politely redirect: "I'm here to help you learn about Shashi Kumar's professional background. Feel free to ask about his experience, skills, projects, education, or certifications!"
-6. Be comprehensive but concise (2-4 sentences for most questions, longer for detailed project descriptions).
-7. Always be professional, helpful, and enthusiastic about Shashi's accomplishments.
+4. For greetings, respond warmly and offer to help with questions about Shashi.
+5. If asked about unrelated topics, politely redirect to Shashi's professional background.
+6. Be comprehensive but concise (2-4 sentences for most questions).
+7. Reference previous messages in the conversation when relevant to maintain context.
+8. Use markdown formatting for better readability (bold, lists, code blocks, etc.).
 
-EXAMPLE RESPONSES:
-Q: Hey!
-A: Hi there! I'm here to help you learn about Shashi Kumar. Feel free to ask me about his experience, skills, projects, education, or anything else related to his professional background!
+Remember: You are in a conversation, so maintain context from previous messages and build upon them naturally.`;
 
-Q: What projects is he working on?
-A: At TIS: FIS, Shashi is working on several major projects including: 1) MCP Servers ecosystem for GitHub, JIRA, Jenkins, Splunk, Windows RDP, and PDF Creator integrated with VS Code, 2) Enterprise AI ChatBot Platform with A2A protocol for multi-agent conversations, 3) Vector Embeddings for per-user agent memory, 4) Security guardrails for PII protection, and 5) OWASP Top 10 security implementations for AI agents.`;
+      // Build conversation history for Gradio Chat Interface
+      // Format: [[user_msg, bot_msg], [user_msg, bot_msg], ...]
+      const chatHistory = messages
+        .filter(msg => msg.role === 'user' || msg.role === 'assistant')
+        .reduce((acc: string[][], msg, idx, arr) => {
+          if (msg.role === 'user') {
+            acc.push([msg.content, '']);
+          } else if (msg.role === 'assistant' && acc.length > 0) {
+            acc[acc.length - 1][1] = msg.content;
+          }
+          return acc;
+        }, []);
 
-      // Call Gradio API
-      const result = await clientRef.current.predict("/generate_text", { 		
-        prompt: userMessage, 
-        system_prompt: systemPrompt, 
-        temperature: 0.7, 
+      console.log('Chat history:', chatHistory);
+      console.log('System prompt:', systemPrompt);
+
+      // Call Gradio Chat API with history
+      const result = await clientRef.current.predict("/chat", { 		
+        message: userMessage,
+        history: chatHistory,
+        system_message: systemPrompt,
+        temperature: 0.7,
       });
 
-      console.log('Gradio API result:', result);
+      console.log('Gradio Chat API result:', result);
 
-      // Extract response - handle different possible response formats
+      // Extract response from Gradio Chat Interface
       let assistantMessage = "Sorry, I couldn't generate a response.";
       
       if (result && result.data) {
-        if (Array.isArray(result.data) && result.data.length > 0) {
-          assistantMessage = result.data[0];
+        // Gradio Chat returns the updated history
+        if (Array.isArray(result.data)) {
+          // The last item in the history should be the new response
+          const lastExchange = result.data[result.data.length - 1];
+          if (Array.isArray(lastExchange) && lastExchange.length >= 2) {
+            assistantMessage = lastExchange[1]; // Bot's response
+          }
         } else if (typeof result.data === 'string') {
           assistantMessage = result.data;
-        } else if (result.data.text) {
-          assistantMessage = result.data.text;
+        } else if (result.data.message) {
+          assistantMessage = result.data.message;
         } else if (result.data.response) {
           assistantMessage = result.data.response;
         }
