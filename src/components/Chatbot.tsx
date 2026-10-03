@@ -12,7 +12,7 @@ export default function Chatbot() {
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: 'assistant', 
-      content: "Hi! I'm an AI assistant powered by Shashi's portfolio data. Ask me anything about his experience, skills, projects, or background!" 
+      content: "Hello! 👋 I'm here to help you learn about Shashi Kumar. Feel free to ask me about his experience, skills, projects, education, certifications, or anything else related to his professional background!" 
     }
   ]);
   const [input, setInput] = useState('');
@@ -89,22 +89,23 @@ export default function Chatbot() {
       const portfolioContext = generateChatbotContext();
       
       // Create system prompt with portfolio context
-      const systemPrompt = `You are an AI assistant that answers questions about Shashi Kumar based on his portfolio. Use ONLY the information provided below to answer questions accurately and in detail.
+      const systemPrompt = `You are a friendly and helpful AI assistant for Shashi Kumar's portfolio website. Your role is to answer questions about Shashi's professional background.
 
 ${portfolioContext}
 
-IMPORTANT RULES:
-- When asked about projects, ALWAYS list specific project names and descriptions from the portfolio
-- When asked about current role, mention ALL the projects he's working on at TIS: FIS
-- Provide detailed answers with specific examples from the portfolio data
-- Include project names like: MCP Servers, AI ChatBot Platform, A2A Protocol, Vector Embeddings, Security Guardrails, etc.
-- Be comprehensive but concise (3-5 sentences for detailed questions)
-- Use ONLY the facts provided above
-- If asked about topics not related to Shashi, politely redirect to his expertise
-- Be professional and helpful
-- If you don't know something, say "I don't have that information in my knowledge base"
+GUIDELINES:
+1. Be conversational and friendly. You can greet users warmly (e.g., "Hi there!", "Hello!", "Hey!").
+2. When asked about Shashi's work, experience, skills, projects, education, or certifications, provide detailed, specific answers using the information above.
+3. List specific project names, technologies, achievements, and dates when relevant.
+4. For greetings or casual messages, respond warmly and offer to help with questions about Shashi.
+5. If asked about topics unrelated to Shashi's professional background, politely redirect: "I'm here to help you learn about Shashi Kumar's professional background. Feel free to ask about his experience, skills, projects, education, or certifications!"
+6. Be comprehensive but concise (2-4 sentences for most questions, longer for detailed project descriptions).
+7. Always be professional, helpful, and enthusiastic about Shashi's accomplishments.
 
 EXAMPLE RESPONSES:
+Q: Hey!
+A: Hi there! I'm here to help you learn about Shashi Kumar. Feel free to ask me about his experience, skills, projects, education, or anything else related to his professional background!
+
 Q: What projects is he working on?
 A: At TIS: FIS, Shashi is working on several major projects including: 1) MCP Servers ecosystem for GitHub, JIRA, Jenkins, Splunk, Windows RDP, and PDF Creator integrated with VS Code, 2) Enterprise AI ChatBot Platform with A2A protocol for multi-agent conversations, 3) Vector Embeddings for per-user agent memory, 4) Security guardrails for PII protection, and 5) OWASP Top 10 security implementations for AI agents.`;
 
@@ -115,8 +116,29 @@ A: At TIS: FIS, Shashi is working on several major projects including: 1) MCP Se
         temperature: 0.7, 
       });
 
-      // Extract response
-      const assistantMessage = result.data[0] || "Sorry, I couldn't generate a response.";
+      console.log('Gradio API result:', result);
+
+      // Extract response - handle different possible response formats
+      let assistantMessage = "Sorry, I couldn't generate a response.";
+      
+      if (result && result.data) {
+        if (Array.isArray(result.data) && result.data.length > 0) {
+          assistantMessage = result.data[0];
+        } else if (typeof result.data === 'string') {
+          assistantMessage = result.data;
+        } else if (result.data.text) {
+          assistantMessage = result.data.text;
+        } else if (result.data.response) {
+          assistantMessage = result.data.response;
+        }
+      }
+      
+      // Clean up the response
+      assistantMessage = assistantMessage.trim();
+      
+      if (!assistantMessage || assistantMessage.length < 3) {
+        assistantMessage = "I apologize, but I couldn't generate a proper response. Please try asking your question again.";
+      }
       
       // Add assistant message
       setMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
