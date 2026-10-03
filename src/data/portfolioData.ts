@@ -232,7 +232,7 @@ Description: ${p.description}
 Technologies: ${p.tags.join(", ")}`)
     .join("\n\n");
 
-  const achievementsList = currentRole.achievements.slice(0, 10).join("; ");
+  const achievementsList = currentRole.achievements.join("; ");
 
   // Format previous experience with full details
   const previousExperienceDetails = previousExperience.map(e => {
