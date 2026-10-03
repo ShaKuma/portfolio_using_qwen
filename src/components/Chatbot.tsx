@@ -105,18 +105,30 @@ You are a friendly AI assistant for Shashi Kumar's portfolio. Respond naturally 
 - Be conversational, helpful, and concise (2-4 sentences)
 - Use markdown formatting for better readability`;
 
-      console.log('Sending message to /chat_response endpoint...');
-      console.log('Conversation history length:', conversationHistoryRef.current.length);
+      // Build conversation history for ChatInterface
+      // Format: [[user_msg, bot_msg], [user_msg, bot_msg], ...]
+      const chatHistory = conversationHistoryRef.current.reduce((acc: string[][], msg, idx, arr) => {
+        if (msg.role === 'user') {
+          acc.push([msg.content, '']);
+        } else if (msg.role === 'assistant' && acc.length > 0) {
+          acc[acc.length - 1][1] = msg.content;
+        }
+        return acc;
+      }, []);
+
+      console.log('Sending message to /chat endpoint (ChatInterface)...');
+      console.log('Conversation history length:', chatHistory.length);
       console.log('Message length:', messageWith.length);
 
       let assistantMessage = "";
       let streamingSucceeded = false;
 
-      // Try streaming first
+      // Try streaming first with ChatInterface format
       try {
-        console.log('Attempting streaming...');
-        const stream = await clientRef.current.stream("/chat_response", {
+        console.log('Attempting streaming with /chat...');
+        const stream = await clientRef.current.stream("/chat", {
           message: messageWith,
+          history: chatHistory,
         });
 
         // Check if stream is iterable
@@ -126,15 +138,19 @@ You are a friendly AI assistant for Shashi Kumar's portfolio. Respond naturally 
           for await (const chunk of stream) {
             console.log('Received chunk:', chunk);
             
-            // Extract text from chunk
+            // Extract text from chunk - ChatInterface returns updated history
             let chunkText = "";
             if (typeof chunk === 'string') {
               chunkText = chunk;
             } else if (chunk && chunk.data) {
-              if (typeof chunk.data === 'string') {
+              // ChatInterface returns history as [[user, bot], ...]
+              if (Array.isArray(chunk.data) && chunk.data.length > 0) {
+                const lastExchange = chunk.data[chunk.data.length - 1];
+                if (Array.isArray(lastExchange) && lastExchange.length >= 2) {
+                  chunkText = lastExchange[1]; // Bot's response
+                }
+              } else if (typeof chunk.data === 'string') {
                 chunkText = chunk.data;
-              } else if (Array.isArray(chunk.data)) {
-                chunkText = chunk.data.join('');
               } else if (chunk.data.message) {
                 chunkText = chunk.data.message;
               } else if (chunk.data.response) {
@@ -169,19 +185,24 @@ You are a friendly AI assistant for Shashi Kumar's portfolio. Respond naturally 
 
       // If streaming failed or didn't work, use predict()
       if (!streamingSucceeded) {
-        console.log('Using predict() method...');
-        const result = await clientRef.current.predict("/chat_response", {
+        console.log('Using predict() method with /chat...');
+        const result = await clientRef.current.predict("/chat", {
           message: messageWith,
+          history: chatHistory,
         });
 
         console.log('API Response:', result);
 
-        // Extract the response
+        // Extract the response - ChatInterface returns updated history
         if (result && result.data) {
-          if (typeof result.data === 'string') {
+          if (Array.isArray(result.data) && result.data.length > 0) {
+            // ChatInterface returns history as [[user, bot], ...]
+            const lastExchange = result.data[result.data.length - 1];
+            if (Array.isArray(lastExchange) && lastExchange.length >= 2) {
+              assistantMessage = lastExchange[1]; // Bot's response
+            }
+          } else if (typeof result.data === 'string') {
             assistantMessage = result.data;
-          } else if (Array.isArray(result.data) && result.data.length > 0) {
-            assistantMessage = result.data[result.data.length - 1] || result.data[0];
           } else if (result.data.message) {
             assistantMessage = result.data.message;
           } else if (result.data.response) {
