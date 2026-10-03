@@ -13,8 +13,9 @@ export const personalInfo = {
 
 export const currentRole = {
   title: "Associate Lead Software Engineer",
-  company: "FIS (Fidelity Information Services)",
+  company: "TIS: FIS (Fidelity Information Services)",
   period: "June 2020 - Present",
+  projectDescription: "Finance Project – Project is aimed at accepting and processing payments in TSYS credit cards. Application accepts payment from an array of channels such as IVR, Call Center, Website, Mobile application. It is also involved in end of the day payment settlement through Sql Jobs while coordinating with acquirer and issuer.",
   achievements: [
     "Architected & developed Model Context Protocol (MCP) servers for GitHub, JIRA, Jenkins, Web Services, Splunk, Windows RDP, and PDF Creator — integrated with VS Code to enable AI-powered development workflows across the organization.",
     "Designed & built an enterprise-grade Web UI for an Organization-Wide AI ChatBot System, integrating MCP servers to orchestrate seamless external service calls across JIRA, GitHub, Wiki, Jenkins, and more.",
@@ -84,6 +85,7 @@ export const skills = {
     { name: "JavaScript/jQuery", level: 95 },
     { name: "ASP.NET MVC", level: 92 },
     { name: "HTML/CSS/AJAX", level: 95 },
+    { name: "JSON", level: 90 },
   ],
   backend: [
     { name: "C#/.NET", level: 95 },
@@ -98,15 +100,42 @@ export const skills = {
     { name: "Hugging Face", level: 80 },
     { name: "LSTM/RNN/NLP", level: 82 },
     { name: "LLMs", level: 75 },
+    { name: "sklearn", level: 80 },
   ],
   devops: [
     { name: "Jenkins", level: 90 },
     { name: "Kafka", level: 85 },
     { name: "SQL Server", level: 92 },
     { name: "Git/TFS", level: 90 },
-    { name: "Grafana/Prometheus", level: 82 },
+    { name: "Grafana/Prometheus/Splunk", level: 82 },
+  ],
+  other: [
+    { name: "Windows OS", level: 95 },
+    { name: "Android Mobile Development", level: 80 },
+    { name: "Arduino Programming", level: 75 },
+    { name: "IBM Websphere", level: 78 },
+    { name: "Selenium", level: 82 },
   ],
 };
+
+export const aiMlKnowledge = {
+  mlConcepts: "Regression, Classification, Clustering, Random Forest, Bagging, Boosting, Decision Tree",
+  deepLearning: "ANN (for regression), CNN (Computer Vision), RNN & LSTM (sequence modelling), GNNs, Transformers",
+  nlp: "Natural Language Processing, Text Sentiment Analysis, Text Generation",
+  llms: "Basic understanding of Large Language Models, Hugging Face Transformers for text generation",
+  frameworks: "TensorFlow, PyTorch, sklearn, Hugging Face Transformers",
+  techniques: "Learning algorithms, optimizers, regularization techniques, transfer learning, training models on specific datasets",
+  computerVision: "YOLOv8 for object detection, CNN for image processing",
+  speech: "Speech recognition, text-to-speech pipeline using Hugging Face Transformers",
+  projects: "LSTM model for text sentiment analysis on Amazon product reviews, Artificial Neural Networks implementation, Text generation using pre-trained models"
+};
+
+export const experienceSummary = [
+  "11+ years of experience working as a full stack web application developer handling development to deployment",
+  "Proven ability to use innovative methods for processing and troubleshooting problems providing cost-effective solutions",
+  "Passionate about learning and quickly implementing new technologies as required",
+  "Completed Machine Learning and Artificial Intelligence Course conducted by IIT Delhi (Duration – 6 months)"
+];
 
 export const projects = [
   {
@@ -196,29 +225,69 @@ export function generateChatbotContext(): string {
     .map(([category, items]) => `${category}: ${items.map(s => s.name).join(", ")}`)
     .join("; ");
 
+  // Format projects with full descriptions
   const projectsList = projects
-    .map(p => `${p.title} (${p.tags.join(", ")})`)
-    .join("; ");
+    .map(p => `${p.title}
+Description: ${p.description}
+Technologies: ${p.tags.join(", ")}`)
+    .join("\n\n");
 
-  const achievementsList = currentRole.achievements.slice(0, 10).join("; ");
+  const achievementsList = currentRole.achievements.join("; ");
+
+  // Format previous experience with full details
+  const previousExperienceDetails = previousExperience.map(e => {
+    return `${e.title} at ${e.company} (${e.period})
+Project: ${e.description}
+Achievements: ${e.achievements.join("; ")}`;
+  }).join("\n\n");
 
   return `Shashi Kumar Portfolio Data:
+
+PERSONAL INFO:
 Name: ${personalInfo.name}
 Email: ${personalInfo.email}
 Phone: ${personalInfo.phone}
 Location: ${personalInfo.location}
 LinkedIn: ${personalInfo.linkedin}
 GitHub: ${personalInfo.github}
-Experience: 11+ years full stack developer
-Education: ${personalInfo.education}
-AI/ML: ${personalInfo.certification}
-Current Role: ${currentRole.title} at ${currentRole.company} (${currentRole.period})
+
+EXPERIENCE SUMMARY:
+${experienceSummary.join("; ")}
+
+EDUCATION:
+${education.map(e => `${e.degree} from ${e.institute} (${e.year}) - ${e.score}`).join("; ")}
+
+CERTIFICATIONS:
+${certifications.join("; ")}
+
+CURRENT ROLE:
+${currentRole.title} at ${currentRole.company} (${currentRole.period})
+Project: ${currentRole.projectDescription}
 Key Achievements: ${achievementsList}
-Previous: ${previousExperience.map(e => `${e.title} at ${e.company} (${e.period})`).join("; ")}
-Skills: ${skillsList}
-Projects: ${projectsList}
-Education History: B.Tech CSE LPU 2010-2014 (7.87/10), HSC CBSE 2009 (80.2%), SSC CBSE 2007 (84.3%)
-Certifications: ${certifications.join("; ")}
-Course Projects: ${courseProjects.map(p => p.title).join("; ")}
-Major Achievements: ${achievements.join("; ")}`;
+
+PREVIOUS EXPERIENCE:
+${previousExperienceDetails}
+
+TECHNICAL SKILLS:
+${skillsList}
+
+AI/ML EXPERTISE (IIT Delhi Certified):
+ML Concepts: ${aiMlKnowledge.mlConcepts}
+Deep Learning: ${aiMlKnowledge.deepLearning}
+NLP: ${aiMlKnowledge.nlp}
+LLMs: ${aiMlKnowledge.llms}
+Frameworks: ${aiMlKnowledge.frameworks}
+Techniques: ${aiMlKnowledge.techniques}
+Computer Vision: ${aiMlKnowledge.computerVision}
+Speech: ${aiMlKnowledge.speech}
+AI/ML Projects: ${aiMlKnowledge.projects}
+
+PROJECTS:
+${projectsList}
+
+COURSE PROJECTS:
+${courseProjects.map(p => `${p.title}: ${p.description}`).join("; ")}
+
+MAJOR ACHIEVEMENTS:
+${achievements.join("; ")}`;
 }

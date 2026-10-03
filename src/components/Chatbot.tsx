@@ -105,6 +105,8 @@ You are a friendly AI assistant for Shashi Kumar's portfolio. Respond naturally 
 - Be conversational, helpful, and concise (2-4 sentences)
 - Use markdown formatting for better readability`;
 
+
+
       console.log('Sending message to /chat_response endpoint...');
       console.log('Conversation history length:', conversationHistoryRef.current.length);
       console.log('Message length:', messageWith.length);
@@ -114,7 +116,7 @@ You are a friendly AI assistant for Shashi Kumar's portfolio. Respond naturally 
 
       // Try streaming first
       try {
-        console.log('Attempting streaming...');
+        console.log('Attempting streaming with /chat_response...');
         const stream = await clientRef.current.stream("/chat_response", {
           message: messageWith,
         });
@@ -169,7 +171,7 @@ You are a friendly AI assistant for Shashi Kumar's portfolio. Respond naturally 
 
       // If streaming failed or didn't work, use predict()
       if (!streamingSucceeded) {
-        console.log('Using predict() method...');
+        console.log('Using predict() method with /chat_response...');
         const result = await clientRef.current.predict("/chat_response", {
           message: messageWith,
         });
