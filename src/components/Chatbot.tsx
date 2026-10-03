@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Client } from "@gradio/client";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { generateChatbotContext } from '../data/portfolioData';
 
 interface Message {
@@ -210,7 +212,33 @@ A: At TIS: FIS, Shashi is working on several major projects including: 1) MCP Se
                       : 'bg-dark-card border border-dark-border text-text-primary'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  <div className="text-sm prose prose-invert prose-sm max-w-none">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                        strong: ({node, ...props}) => <strong className="font-bold" {...props} />,
+                        em: ({node, ...props}) => <em className="italic" {...props} />,
+                        code: ({node, ...props}) => (
+                          <code className="bg-dark-bg/50 px-1.5 py-0.5 rounded text-xs font-mono" {...props} />
+                        ),
+                        pre: ({node, ...props}) => (
+                          <pre className="bg-dark-bg/50 p-2 rounded my-2 overflow-x-auto" {...props} />
+                        ),
+                        ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2 space-y-1" {...props} />,
+                        ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2 space-y-1" {...props} />,
+                        li: ({node, ...props}) => <li className="ml-2" {...props} />,
+                        a: ({node, ...props}) => (
+                          <a className="text-primary-light hover:text-primary underline" target="_blank" rel="noopener noreferrer" {...props} />
+                        ),
+                        h1: ({node, ...props}) => <h1 className="text-lg font-bold mb-2" {...props} />,
+                        h2: ({node, ...props}) => <h2 className="text-base font-bold mb-2" {...props} />,
+                        h3: ({node, ...props}) => <h3 className="text-sm font-bold mb-1" {...props} />,
+                      }}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               </div>
             ))}
