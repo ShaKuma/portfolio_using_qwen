@@ -42,15 +42,34 @@ export default function Chatbot() {
       setIsLoading(true);
       setError(null);
       
-      const client = await Client.connect("shkumar1991/llm-chat-custom");
+      // Try with full URL first
+      const client = await Client.connect("https://shkumar1991-llm-chat-custom.hf.space");
       clientRef.current = client;
       setIsConnected(true);
       setIsLoading(false);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to connect to Gradio client:', err);
-      setError('Failed to connect to AI service. Please try again.');
-      setIsLoading(false);
+      
+      // Try alternative connection method
+      try {
+        const client = await Client.connect("shkumar1991/llm-chat-custom", {
+          hf_token: undefined,
+        });
+        clientRef.current = client;
+        setIsConnected(true);
+        setIsLoading(false);
+      } catch (retryErr) {
+        console.error('Retry also failed:', retryErr);
+        setError('Failed to connect to AI service. The Hugging Face Space might be sleeping. Please try again in a moment.');
+        setIsLoading(false);
+      }
     }
+  };
+
+  const handleReconnect = () => {
+    clientRef.current = null;
+    setIsConnected(false);
+    initializeClient();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -134,9 +153,17 @@ Rules:
                 {isLoading && !isConnected ? 'Connecting...' : isConnected ? 'AI Assistant' : 'Offline'}
               </p>
             </div>
-            {isConnected && (
+            {isConnected ? (
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-            )}
+            ) : !isLoading ? (
+              <button
+                onClick={handleReconnect}
+                className="text-white/80 hover:text-white transition-colors"
+                title="Reconnect"
+              >
+                <i className="fas fa-redo text-sm"></i>
+              </button>
+            ) : null}
           </div>
 
           {/* Messages */}
@@ -171,13 +198,20 @@ Rules:
               </div>
             )}
 
-            {/* Error message */}
+            {/* Error message with reconnect button */}
             {error && (
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center gap-2">
                 <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-2 text-red-400 text-xs">
                   <i className="fas fa-exclamation-circle mr-2"></i>
                   {error}
                 </div>
+                <button
+                  onClick={handleReconnect}
+                  className="text-xs text-primary-light hover:text-primary hover:underline transition-colors"
+                >
+                  <i className="fas fa-redo mr-1"></i>
+                  Try Reconnecting
+                </button>
               </div>
             )}
             
