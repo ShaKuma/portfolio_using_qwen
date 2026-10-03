@@ -90,20 +90,12 @@ export default function Chatbot() {
       // Get compact portfolio context
       const portfolioContext = generateChatbotContext();
       
-      // Build clean message with context
-      const messageWith = `[CONTEXT]
-${portfolioContext}
+      // Build compact message with context
+      const messageWith = `Context: ${portfolioContext}
 
-[USER MESSAGE]
-${userMessage}
+Question: ${userMessage}
 
-[INSTRUCTIONS]
-You are a friendly AI assistant for Shashi Kumar's portfolio. Respond naturally and conversationally:
-- For greetings (hi, hello, hey, etc.): Respond warmly and offer to help with questions about Shashi's experience, skills, projects, education, or certifications
-- For questions about Shashi: Answer using ONLY the context above, be specific and detailed
-- For off-topic questions: Politely redirect to Shashi's professional background
-- Be conversational, helpful, and concise (2-4 sentences)
-- Use markdown formatting for better readability`;
+Answer concisely using only the context. For greetings, respond warmly. For off-topic questions, redirect to Shashi's professional background.`;
 
 
 
