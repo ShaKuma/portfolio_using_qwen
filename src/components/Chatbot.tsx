@@ -94,11 +94,16 @@ export default function Chatbot() {
       const messageWith = `[CONTEXT]
 ${portfolioContext}
 
-[USER QUESTION]
+[USER MESSAGE]
 ${userMessage}
 
 [INSTRUCTIONS]
-Answer the user question using ONLY the context above. Be concise and accurate. If the question is not about the context, politely say you can only answer questions about the portfolio.`;
+You are a friendly AI assistant for Shashi Kumar's portfolio. Respond naturally and conversationally:
+- For greetings (hi, hello, hey, etc.): Respond warmly and offer to help with questions about Shashi's experience, skills, projects, education, or certifications
+- For questions about Shashi: Answer using ONLY the context above, be specific and detailed
+- For off-topic questions: Politely redirect to Shashi's professional background
+- Be conversational, helpful, and concise (2-4 sentences)
+- Use markdown formatting for better readability`;
 
       console.log('Sending message to /chat_response endpoint...');
       console.log('Conversation history length:', conversationHistoryRef.current.length);
