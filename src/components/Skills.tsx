@@ -160,24 +160,21 @@ function SkillCard({ category, index, isVisible }: { category: SkillCategory; in
                   <span className="text-sm font-medium text-text-secondary group-hover/skill:text-text-primary transition-colors">
                     {skill.name}
                   </span>
-                  <div className="flex items-center gap-2">
-                    {/* Skill level dots */}
-                    <div className="flex gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <div
-                          key={i}
-                          className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                            i < Math.ceil(skill.level / 20)
-                              ? `bg-gradient-to-r ${category.gradient} shadow-lg`
-                              : 'bg-dark-border'
-                          }`}
-                          style={{
-                            animationDelay: `${skillIndex * 0.1 + i * 0.05}s`
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-xs font-mono text-text-muted w-8 text-right">{skill.level}%</span>
+                  {/* Skill level dots - visual only, no percentage */}
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <div
+                        key={i}
+                        className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                          i < Math.ceil(skill.level / 20)
+                            ? `bg-gradient-to-r ${category.gradient} shadow-lg`
+                            : 'bg-dark-border'
+                        }`}
+                        style={{
+                          animationDelay: `${skillIndex * 0.1 + i * 0.05}s`
+                        }}
+                      />
+                    ))}
                   </div>
                 </div>
                 
