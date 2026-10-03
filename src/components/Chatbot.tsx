@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { Client } from "@gradio/client";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { generateChatbotContext } from '../data/portfolioData';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -87,71 +86,34 @@ export default function Chatbot() {
     setError(null);
 
     try {
-      // Get portfolio context
-      const portfolioContext = generateChatbotContext();
-      
-      // Create system prompt with portfolio context
-      const systemPrompt = `You are a friendly and helpful AI assistant for Shashi Kumar's portfolio website. You have access to detailed information about Shashi's professional background.
+      // Note: System prompt and portfolio context are handled server-side in the Gradio Space
+      // We only need to send the user message
 
-${portfolioContext}
+      console.log('Sending message to /chat_response:', userMessage);
 
-GUIDELINES:
-1. Be conversational and friendly. Greet users warmly when they say hi/hello/hey.
-2. Provide detailed, specific answers about Shashi's work, experience, skills, projects, education, and certifications.
-3. List specific project names, technologies, achievements, and dates when relevant.
-4. For greetings, respond warmly and offer to help with questions about Shashi.
-5. If asked about unrelated topics, politely redirect to Shashi's professional background.
-6. Be comprehensive but concise (2-4 sentences for most questions).
-7. Reference previous messages in the conversation when relevant to maintain context.
-8. Use markdown formatting for better readability (bold, lists, code blocks, etc.).
-
-The conversation history is automatically managed by the chat interface, so you have full context of the ongoing conversation.`;
-
-      // Build conversation history for Gradio ChatInterface
-      // Format: [[user_msg, bot_msg], [user_msg, bot_msg], ...]
-      const chatHistory = messages
-        .reduce((acc: string[][], msg, idx, arr) => {
-          if (msg.role === 'user') {
-            // Start a new conversation pair
-            acc.push([msg.content, '']);
-          } else if (msg.role === 'assistant' && acc.length > 0) {
-            // Fill in the bot's response for the last user message
-            acc[acc.length - 1][1] = msg.content;
-          }
-          return acc;
-        }, []);
-
-      console.log('Chat history for API:', chatHistory);
-      console.log('System message:', systemPrompt);
-
-      // Call Gradio Chat API
-      const result = await clientRef.current.predict("/chat", { 		
+      // Call Gradio Chat API with correct endpoint
+      const result = await clientRef.current.predict("/chat_response", { 		
         message: userMessage,
-        history: chatHistory,
-        system_message: systemPrompt,
-        temperature: 0.7,
-        max_tokens: 512,
       });
 
       console.log('Gradio Chat API result:', result);
 
-      // Extract response from Gradio ChatInterface
+      // Extract response from Gradio API
       let assistantMessage = "Sorry, I couldn't generate a response.";
       
       if (result && result.data) {
-        // Gradio ChatInterface returns the updated history
-        if (Array.isArray(result.data) && result.data.length > 0) {
-          // Get the last exchange (most recent conversation)
-          const lastExchange = result.data[result.data.length - 1];
-          if (Array.isArray(lastExchange) && lastExchange.length >= 2) {
-            assistantMessage = lastExchange[1]; // Bot's response is the second element
-          }
-        } else if (typeof result.data === 'string') {
+        // Handle different response formats
+        if (typeof result.data === 'string') {
           assistantMessage = result.data;
+        } else if (Array.isArray(result.data) && result.data.length > 0) {
+          // If it's an array, get the first element or last element
+          assistantMessage = result.data[result.data.length - 1] || result.data[0];
         } else if (result.data.message) {
           assistantMessage = result.data.message;
         } else if (result.data.response) {
           assistantMessage = result.data.response;
+        } else if (result.data.text) {
+          assistantMessage = result.data.text;
         }
       }
       
