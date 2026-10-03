@@ -80,6 +80,19 @@ export default function Chatbot() {
     
     // Add user message to UI
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    
+    // Handle greetings directly without API call
+    const greetings = ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening', 'howdy'];
+    const isGreeting = greetings.some(g => userMessage.toLowerCase().includes(g));
+    
+    if (isGreeting) {
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: "Hello! 👋 I'm here to help you learn about Shashi Kumar. Feel free to ask me about his experience, skills, projects, education, or certifications!" 
+      }]);
+      return;
+    }
+    
     setIsLoading(true);
     setError(null);
 
