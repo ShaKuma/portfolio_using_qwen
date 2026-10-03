@@ -91,7 +91,6 @@ export default function Chatbot() {
       const portfolioContext = generateChatbotContext();
       
       // Create system prompt with portfolio context
-      // Gradio Chat Interface will handle conversation history automatically
       const systemPrompt = `You are a friendly and helpful AI assistant for Shashi Kumar's portfolio website. You have access to detailed information about Shashi's professional background.
 
 ${portfolioContext}
@@ -106,49 +105,47 @@ GUIDELINES:
 7. Reference previous messages in the conversation when relevant to maintain context.
 8. Use markdown formatting for better readability (bold, lists, code blocks, etc.).
 
-Remember: You are in a conversation, so maintain context from previous messages and build upon them naturally.`;
+IMPORTANT: You will receive a CONVERSATION HISTORY section below. Use it to remember what was discussed earlier in the conversation and maintain context across multiple messages.`;
 
-      // Build conversation history for Gradio Chat Interface
-      // Format: [[user_msg, bot_msg], [user_msg, bot_msg], ...]
-      const chatHistory = messages
+      // Build conversation history to include in system prompt
+      // This allows the LLM to remember previous messages
+      const conversationHistory = messages
         .filter(msg => msg.role === 'user' || msg.role === 'assistant')
-        .reduce((acc: string[][], msg, idx, arr) => {
-          if (msg.role === 'user') {
-            acc.push([msg.content, '']);
-          } else if (msg.role === 'assistant' && acc.length > 0) {
-            acc[acc.length - 1][1] = msg.content;
-          }
-          return acc;
-        }, []);
+        .map(msg => {
+          const role = msg.role === 'user' ? 'User' : 'Assistant';
+          return `${role}: ${msg.content}`;
+        })
+        .join('\n');
 
-      console.log('Chat history:', chatHistory);
-      console.log('System prompt:', systemPrompt);
+      // Enhanced system prompt with conversation history
+      const enhancedSystemPrompt = `${systemPrompt}
 
-      // Call Gradio Chat API with history
-      const result = await clientRef.current.predict("/chat", { 		
-        message: userMessage,
-        history: chatHistory,
-        system_message: systemPrompt,
-        temperature: 0.7,
+CONVERSATION HISTORY:
+${conversationHistory}
+
+Continue the conversation naturally, referencing previous messages when relevant.`;
+
+      console.log('Enhanced system prompt:', enhancedSystemPrompt);
+
+      // Call Gradio API with conversation context
+      const result = await clientRef.current.predict("/generate_text", { 		
+        prompt: userMessage, 
+        system_prompt: enhancedSystemPrompt, 
+        temperature: 0.7, 
       });
 
-      console.log('Gradio Chat API result:', result);
+      console.log('Gradio API result:', result);
 
-      // Extract response from Gradio Chat Interface
+      // Extract response - handle different possible response formats
       let assistantMessage = "Sorry, I couldn't generate a response.";
       
       if (result && result.data) {
-        // Gradio Chat returns the updated history
-        if (Array.isArray(result.data)) {
-          // The last item in the history should be the new response
-          const lastExchange = result.data[result.data.length - 1];
-          if (Array.isArray(lastExchange) && lastExchange.length >= 2) {
-            assistantMessage = lastExchange[1]; // Bot's response
-          }
+        if (Array.isArray(result.data) && result.data.length > 0) {
+          assistantMessage = result.data[0];
         } else if (typeof result.data === 'string') {
           assistantMessage = result.data;
-        } else if (result.data.message) {
-          assistantMessage = result.data.message;
+        } else if (result.data.text) {
+          assistantMessage = result.data.text;
         } else if (result.data.response) {
           assistantMessage = result.data.response;
         }
