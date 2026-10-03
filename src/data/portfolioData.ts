@@ -231,6 +231,13 @@ export function generateChatbotContext(): string {
 
   const achievementsList = currentRole.achievements.slice(0, 10).join("; ");
 
+  // Format previous experience with full details
+  const previousExperienceDetails = previousExperience.map(e => {
+    return `${e.title} at ${e.company} (${e.period})
+Project: ${e.description}
+Achievements: ${e.achievements.join("; ")}`;
+  }).join("\n\n");
+
   return `Shashi Kumar Portfolio Data:
 
 PERSONAL INFO:
@@ -256,7 +263,7 @@ Project: ${currentRole.projectDescription}
 Key Achievements: ${achievementsList}
 
 PREVIOUS EXPERIENCE:
-${previousExperience.map(e => `${e.title} at ${e.company} (${e.period})`).join("; ")}
+${previousExperienceDetails}
 
 TECHNICAL SKILLS:
 ${skillsList}
