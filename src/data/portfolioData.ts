@@ -221,73 +221,37 @@ export const courseProjects = [
 ];
 
 export function generateChatbotContext(): string {
+  // Compact skills list
   const skillsList = Object.entries(skills)
     .map(([category, items]) => `${category}: ${items.map(s => s.name).join(", ")}`)
     .join("; ");
 
-  // Format projects with full descriptions
+  // Compact projects (title + key tech only)
   const projectsList = projects
-    .map(p => `${p.title}
-Description: ${p.description}
-Technologies: ${p.tags.join(", ")}`)
-    .join("\n\n");
+    .map(p => `${p.title}: ${p.description.substring(0, 150)}... Tech: ${p.tags.join(", ")}`)
+    .join("; ");
 
-  const achievementsList = currentRole.achievements.join("; ");
+  // Compact achievements (first 15 only to save space)
+  const achievementsList = currentRole.achievements.slice(0, 15).join("; ");
 
-  // Format previous experience with full details
+  // Compact previous experience
   const previousExperienceDetails = previousExperience.map(e => {
-    return `${e.title} at ${e.company} (${e.period})
-Project: ${e.description}
-Achievements: ${e.achievements.join("; ")}`;
-  }).join("\n\n");
+    return `${e.title} at ${e.company} (${e.period}): ${e.description.substring(0, 100)}... Key: ${e.achievements.slice(0, 5).join(", ")}`;
+  }).join("; ");
 
-  return `Shashi Kumar Portfolio Data:
+  // Compact AI/ML knowledge
+  const aiMlCompact = `ML: ${aiMlKnowledge.mlConcepts}; DL: ${aiMlKnowledge.deepLearning}; NLP: ${aiMlKnowledge.nlp}; LLMs: ${aiMlKnowledge.llms}; Frameworks: ${aiMlKnowledge.frameworks}`;
 
-PERSONAL INFO:
-Name: ${personalInfo.name}
-Email: ${personalInfo.email}
-Phone: ${personalInfo.phone}
-Location: ${personalInfo.location}
-LinkedIn: ${personalInfo.linkedin}
-GitHub: ${personalInfo.github}
-
-EXPERIENCE SUMMARY:
-${experienceSummary.join("; ")}
-
-EDUCATION:
-${education.map(e => `${e.degree} from ${e.institute} (${e.year}) - ${e.score}`).join("; ")}
-
-CERTIFICATIONS:
-${certifications.join("; ")}
-
-CURRENT ROLE:
-${currentRole.title} at ${currentRole.company} (${currentRole.period})
-Project: ${currentRole.projectDescription}
-Key Achievements: ${achievementsList}
-
-PREVIOUS EXPERIENCE:
-${previousExperienceDetails}
-
-TECHNICAL SKILLS:
-${skillsList}
-
-AI/ML EXPERTISE (IIT Delhi Certified):
-ML Concepts: ${aiMlKnowledge.mlConcepts}
-Deep Learning: ${aiMlKnowledge.deepLearning}
-NLP: ${aiMlKnowledge.nlp}
-LLMs: ${aiMlKnowledge.llms}
-Frameworks: ${aiMlKnowledge.frameworks}
-Techniques: ${aiMlKnowledge.techniques}
-Computer Vision: ${aiMlKnowledge.computerVision}
-Speech: ${aiMlKnowledge.speech}
-AI/ML Projects: ${aiMlKnowledge.projects}
-
-PROJECTS:
-${projectsList}
-
-COURSE PROJECTS:
-${courseProjects.map(p => `${p.title}: ${p.description}`).join("; ")}
-
-MAJOR ACHIEVEMENTS:
-${achievements.join("; ")}`;
+  return `Shashi Kumar - Portfolio Context:
+Personal: ${personalInfo.name}, ${personalInfo.email}, ${personalInfo.phone}, ${personalInfo.location}, LinkedIn: ${personalInfo.linkedin}, GitHub: ${personalInfo.github}
+Experience: ${experienceSummary[0]}
+Education: ${education.map(e => `${e.degree} (${e.year})`).join(", ")}
+Certifications: ${certifications.slice(0, 3).join(", ")}
+Current: ${currentRole.title} at ${currentRole.company} (${currentRole.period}). ${currentRole.projectDescription.substring(0, 200)}... Achievements: ${achievementsList}
+Previous: ${previousExperienceDetails}
+Skills: ${skillsList}
+AI/ML: ${aiMlCompact}
+Projects: ${projectsList}
+Course Projects: ${courseProjects.map(p => p.title).join(", ")}
+Achievements: ${achievements.join(", ")}`;
 }
