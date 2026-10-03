@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Client } from "@gradio/client";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { generateChatbotContext } from '../data/portfolioData';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -86,17 +87,31 @@ export default function Chatbot() {
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
     try {
+      // Get compact portfolio context
+      const portfolioContext = generateChatbotContext();
+      
+      // Build clean message with context
+      const messageWith = `[CONTEXT]
+${portfolioContext}
+
+[USER QUESTION]
+${userMessage}
+
+[INSTRUCTIONS]
+Answer the user question using ONLY the context above. Be concise and accurate. If the question is not about the context, politely say you can only answer questions about the portfolio.`;
+
       console.log('Sending message to /chat_response endpoint...');
       console.log('Conversation history length:', conversationHistoryRef.current.length);
+      console.log('Message length:', messageWith.length);
 
       let assistantMessage = "";
       let streamingSucceeded = false;
 
-      // Try streaming first with simple message
+      // Try streaming first
       try {
         console.log('Attempting streaming...');
         const stream = await clientRef.current.stream("/chat_response", {
-          message: userMessage,
+          message: messageWith,
         });
 
         // Check if stream is iterable
@@ -151,7 +166,7 @@ export default function Chatbot() {
       if (!streamingSucceeded) {
         console.log('Using predict() method...');
         const result = await clientRef.current.predict("/chat_response", {
-          message: userMessage,
+          message: messageWith,
         });
 
         console.log('API Response:', result);

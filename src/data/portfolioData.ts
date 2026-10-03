@@ -191,110 +191,36 @@ export const courseProjects = [
   },
 ];
 
-// Function to generate dynamic context for chatbot
+// Function to generate compact context for chatbot
 export function generateChatbotContext(): string {
-  const skillsText = Object.entries(skills)
-    .map(([category, items]) => {
-      const skillList = items.map(s => `${s.name} (${s.level}%)`).join(", ");
-      return `${category}: ${skillList}`;
-    })
-    .join("\n");
+  // Create a more compact version to avoid "Bad request" errors
+  const skillsList = Object.entries(skills)
+    .map(([category, items]) => `${category}: ${items.map(s => s.name).join(", ")}`)
+    .join("; ");
 
-  const projectsText = projects
-    .map(p => `- ${p.title}: ${p.description}\n  Technologies: ${p.tags.join(", ")}`)
-    .join("\n");
+  const projectsList = projects
+    .map(p => `${p.title} (${p.tags.join(", ")})`)
+    .join("; ");
 
-  const currentRoleText = `${currentRole.title} at ${currentRole.company} (${currentRole.period})
-Key Projects and Achievements:
-${currentRole.achievements.map(a => `- ${a}`).join("\n")}`;
+  const achievementsList = currentRole.achievements.slice(0, 10).join("; ");
 
-  const previousExperienceText = previousExperience
-    .map(exp => `${exp.title} at ${exp.company} (${exp.period})
-Description: ${exp.description}
-Achievements:
-${exp.achievements.map(a => `- ${a}`).join("\n")}`)
-    .join("\n\n");
-
-  const educationText = education
-    .map(edu => `- ${edu.degree} from ${edu.institute} (${edu.year}) - Score: ${edu.score}`)
-    .join("\n");
-
-  const certificationsText = certifications
-    .map(cert => `- ${cert}`)
-    .join("\n");
-
-  const courseProjectsText = courseProjects
-    .map(proj => `- ${proj.title}\n  ${proj.description}`)
-    .join("\n");
-
-  return `You are an AI assistant for Shashi Kumar's portfolio. Answer questions using ONLY the facts below.
-
-PERSONAL INFORMATION:
+  return `Shashi Kumar Portfolio Data:
 Name: ${personalInfo.name}
 Email: ${personalInfo.email}
 Phone: ${personalInfo.phone}
 Location: ${personalInfo.location}
 LinkedIn: ${personalInfo.linkedin}
 GitHub: ${personalInfo.github}
-
-EDUCATION:
-${educationText}
-
-CERTIFICATIONS & TRAINING:
-${certificationsText}
-
-CURRENT ROLE:
-${currentRoleText}
-
-PREVIOUS EXPERIENCE:
-${previousExperienceText}
-
-SKILLS:
-${skillsText}
-
-PROJECTS:
-${projectsText}
-
-COURSE PROJECTS:
-${courseProjectsText}
-
-ACHIEVEMENTS:
-${achievements.map(a => `- ${a}`).join("\n")}
-
-EXAMPLES:
-Q: What is your name?
-A: My name is ${personalInfo.name}.
-
-Q: How much experience do you have?
-A: Shashi has 11+ years of experience as a full stack developer.
-
-Q: Where did you study?
-A: Shashi completed B.Tech in Computer Science Engineering from Lovely Professional University (2010-2014) with 7.87/10 CGPA. He also completed HSC from S.R. Century Public School (CBSE) in 2009 with 80.2% and SSC in 2007 with 84.3%.
-
-Q: What certifications do you have?
-A: Shashi has completed several certifications including: 1) Artificial Intelligence and Machine Learning for Industry from IIT Delhi (Feb-Aug 2024), 2) Microsoft App fest (Feb 2013), 3) Microsoft Tech Days (Oct 2010), 4) C# Certification from Lovely Centre for Skill Development (2013), and 5) Android Application Development from Lovely Centre for Skill Development (2013).
-
-Q: What is your current role?
-A: Shashi is an ${currentRole.title} at ${currentRole.company} since ${currentRole.period}.
-
-Q: What projects is he working on at TIS: FIS?
-A: At TIS: FIS, Shashi is working on several major projects including: 1) MCP Servers ecosystem for GitHub, JIRA, Jenkins, Splunk, Windows RDP, and PDF Creator integrated with VS Code, 2) Enterprise AI ChatBot Platform with A2A protocol for multi-agent conversations, 3) Vector Embeddings for per-user agent memory, 4) Security guardrails for PII protection, and 5) OWASP Top 10 security implementations for AI agents.
-
-Q: What were his college projects?
-A: Shashi worked on several course projects including: 1) Implementing Sensor technology in automobiles with Android UI and online tracking (Final year), 2) Android application development - Thief Tracker for locating lost phones (Third year), and 3) Representation of graph through adjacency matrix using C Graphics (Second year).
-
-RULES:
-- When asked about projects, ALWAYS list specific project names and details
-- When asked about education, provide complete educational history with scores
-- When asked about certifications, list all certifications with dates
-- When asked about experience, provide detailed achievements and responsibilities
-- When asked about skills, mention the proficiency percentages
-- Provide detailed answers with specific examples from the portfolio data
-- Be comprehensive but concise (3-5 sentences for detailed questions)
-- Use ONLY the facts above
-- Never repeat the question
-- Never say "hey" or greet
-- If you don't know, say "I don't have that information"
-
-Q:`;
+Experience: 11+ years full stack developer
+Education: ${personalInfo.education}
+AI/ML: ${personalInfo.certification}
+Current Role: ${currentRole.title} at ${currentRole.company} (${currentRole.period})
+Key Achievements: ${achievementsList}
+Previous: ${previousExperience.map(e => `${e.title} at ${e.company} (${e.period})`).join("; ")}
+Skills: ${skillsList}
+Projects: ${projectsList}
+Education History: B.Tech CSE LPU 2010-2014 (7.87/10), HSC CBSE 2009 (80.2%), SSC CBSE 2007 (84.3%)
+Certifications: ${certifications.join("; ")}
+Course Projects: ${courseProjects.map(p => p.title).join("; ")}
+Major Achievements: ${achievements.join("; ")}`;
 }
