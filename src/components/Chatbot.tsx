@@ -82,8 +82,10 @@ export default function Chatbot() {
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     
     // Handle greetings directly without API call
-    const greetings = ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening', 'howdy'];
-    const isGreeting = greetings.some(g => userMessage.toLowerCase().includes(g));
+    // Only match if the message is JUST a greeting (not containing greeting words in other words like "Shashi")
+    const cleanMessage = userMessage.toLowerCase().replace(/[!?.,]/g, '').trim();
+    const exactGreetings = ['hi', 'hello', 'hey', 'howdy', 'good morning', 'good afternoon', 'good evening'];
+    const isGreeting = exactGreetings.includes(cleanMessage);
     
     if (isGreeting) {
       setMessages(prev => [...prev, { 
