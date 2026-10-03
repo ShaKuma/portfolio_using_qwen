@@ -253,7 +253,7 @@ You are a friendly AI assistant for Shashi Kumar's portfolio. Respond naturally 
       {/* Floating Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-8 right-8 z-50 w-14 h-14 rounded-full flex items-center justify-center text-white transition-all duration-300 shadow-lg ${
+        className={`fixed bottom-8 right-8 z-[60] w-14 h-14 rounded-full flex items-center justify-center text-white transition-all duration-300 shadow-lg ${
           isOpen
             ? 'bg-gradient-to-br from-red-500 to-pink-500 hover:scale-110 shadow-red-500/30'
             : 'bg-gradient-to-br from-primary to-accent hover:scale-110 shadow-primary/30 hover:shadow-primary/50'
@@ -265,7 +265,7 @@ You are a friendly AI assistant for Shashi Kumar's portfolio. Respond naturally 
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-28 right-8 z-50 w-96 h-[600px] bg-dark-card border border-dark-border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in-up">
+        <div className="fixed bottom-28 right-8 z-[60] w-96 h-[600px] bg-dark-card border border-dark-border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in-up">
           {/* Header */}
           <div className="bg-gradient-to-r from-primary to-accent p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
