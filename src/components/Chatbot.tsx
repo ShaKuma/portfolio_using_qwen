@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { Client } from "@gradio/client";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { generateChatbotContext } from '../data/portfolioData';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -87,35 +86,17 @@ export default function Chatbot() {
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
     try {
-      // Get complete portfolio context
-      const portfolioContext = generateChatbotContext();
-      
-      // Build the message with portfolio context included
-      const messageWithContext = `${portfolioContext}
-
-IMPORTANT INSTRUCTIONS:
-1. You are a friendly AI assistant for Shashi Kumar's portfolio website.
-2. For greetings like "hi", "hello", "hey", respond warmly and offer to help with questions about Shashi.
-3. For questions about Shashi's experience, skills, projects, education, or certifications, provide detailed answers using ONLY the portfolio data above.
-4. For questions unrelated to Shashi's professional background, politely redirect: "I'm here to help you learn about Shashi Kumar's professional background. Feel free to ask about his experience, skills, projects, education, or certifications!"
-5. Be conversational, professional, and helpful.
-6. Use markdown formatting for better readability.
-
-User Message: ${userMessage}
-
-Please respond appropriately based on the instructions above.`;
-
       console.log('Sending message to /chat_response endpoint...');
       console.log('Conversation history length:', conversationHistoryRef.current.length);
 
       let assistantMessage = "";
       let streamingSucceeded = false;
 
-      // Try streaming first
+      // Try streaming first with simple message
       try {
         console.log('Attempting streaming...');
         const stream = await clientRef.current.stream("/chat_response", {
-          message: messageWithContext,
+          message: userMessage,
         });
 
         // Check if stream is iterable
@@ -170,7 +151,7 @@ Please respond appropriately based on the instructions above.`;
       if (!streamingSucceeded) {
         console.log('Using predict() method...');
         const result = await clientRef.current.predict("/chat_response", {
-          message: messageWithContext,
+          message: userMessage,
         });
 
         console.log('API Response:', result);
