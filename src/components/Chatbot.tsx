@@ -83,7 +83,7 @@ export default function Chatbot() {
     setIsLoading(true);
     setError(null);
 
-    // Add empty assistant message for streaming
+    // Add empty assistant message for streaming/typing indicator
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
     try {
@@ -105,42 +105,92 @@ User Message: ${userMessage}
 
 Please respond appropriately based on the instructions above.`;
 
-      console.log('Sending message to /chat_response endpoint with streaming...');
+      console.log('Sending message to /chat_response endpoint...');
       console.log('Conversation history length:', conversationHistoryRef.current.length);
 
-      // Use streaming for real-time response
-      const stream = await clientRef.current.stream("/chat_response", {
-        message: messageWithContext,
-      });
-
       let assistantMessage = "";
+      let streamingSucceeded = false;
 
-      // Process streaming response
-      for await (const chunk of stream) {
-        console.log('Received chunk:', chunk);
-        
-        // Extract text from chunk
-        let chunkText = "";
-        if (typeof chunk === 'string') {
-          chunkText = chunk;
-        } else if (chunk.data) {
-          if (typeof chunk.data === 'string') {
-            chunkText = chunk.data;
-          } else if (Array.isArray(chunk.data)) {
-            chunkText = chunk.data.join('');
-          } else if (chunk.data.message) {
-            chunkText = chunk.data.message;
-          } else if (chunk.data.response) {
-            chunkText = chunk.data.response;
-          } else if (chunk.data.text) {
-            chunkText = chunk.data.text;
+      // Try streaming first
+      try {
+        console.log('Attempting streaming...');
+        const stream = await clientRef.current.stream("/chat_response", {
+          message: messageWithContext,
+        });
+
+        // Check if stream is iterable
+        if (stream && typeof stream[Symbol.asyncIterator] === 'function') {
+          console.log('Stream is iterable, processing chunks...');
+          
+          for await (const chunk of stream) {
+            console.log('Received chunk:', chunk);
+            
+            // Extract text from chunk
+            let chunkText = "";
+            if (typeof chunk === 'string') {
+              chunkText = chunk;
+            } else if (chunk && chunk.data) {
+              if (typeof chunk.data === 'string') {
+                chunkText = chunk.data;
+              } else if (Array.isArray(chunk.data)) {
+                chunkText = chunk.data.join('');
+              } else if (chunk.data.message) {
+                chunkText = chunk.data.message;
+              } else if (chunk.data.response) {
+                chunkText = chunk.data.response;
+              } else if (chunk.data.text) {
+                chunkText = chunk.data.text;
+              }
+            }
+
+            // Append to full message
+            assistantMessage += chunkText;
+            streamingSucceeded = true;
+
+            // Update UI in real-time
+            setMessages(prev => {
+              const newMessages = [...prev];
+              newMessages[newMessages.length - 1] = { 
+                role: 'assistant', 
+                content: assistantMessage 
+              };
+              return newMessages;
+            });
+          }
+        } else {
+          console.log('Stream is not iterable, falling back to predict()');
+          throw new Error('Stream not iterable');
+        }
+      } catch (streamError) {
+        console.log('Streaming failed, using predict() instead:', streamError);
+        streamingSucceeded = false;
+      }
+
+      // If streaming failed or didn't work, use predict()
+      if (!streamingSucceeded) {
+        console.log('Using predict() method...');
+        const result = await clientRef.current.predict("/chat_response", {
+          message: messageWithContext,
+        });
+
+        console.log('API Response:', result);
+
+        // Extract the response
+        if (result && result.data) {
+          if (typeof result.data === 'string') {
+            assistantMessage = result.data;
+          } else if (Array.isArray(result.data) && result.data.length > 0) {
+            assistantMessage = result.data[result.data.length - 1] || result.data[0];
+          } else if (result.data.message) {
+            assistantMessage = result.data.message;
+          } else if (result.data.response) {
+            assistantMessage = result.data.response;
+          } else if (result.data.text) {
+            assistantMessage = result.data.text;
           }
         }
 
-        // Append to full message
-        assistantMessage += chunkText;
-
-        // Update UI in real-time
+        // Update the assistant message
         setMessages(prev => {
           const newMessages = [...prev];
           newMessages[newMessages.length - 1] = { 
