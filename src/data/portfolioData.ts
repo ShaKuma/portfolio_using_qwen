@@ -44,20 +44,36 @@ export const previousExperience = [
     title: "Associate",
     company: "Cognizant Technology Solutions",
     period: "June 2017 - June 2020",
+    description: "Finance Project – Project aimed at estimating the number of human resource and hardware/software required yearly for running the project. Based on the above inputs system also calculated the revenue cost generated on project monthly, Quarterly and yearly.",
     achievements: [
-      "Saved $32K quarterly via LDAP automation",
-      "Created Report Generator using Windows Service",
-      "Implemented Automated Mail Notification system",
+      "Responsible for web application development using ASP.NET, MVC, Web Services.",
+      "Writing batch jobs and application development related database queries using SQL Server.",
+      "Performing code reviews and providing checklists for correcting the code.",
+      "Using TFS source control for managing the source code and responsible for code merging and maintenance.",
+      "Interacting with clients for collecting and understanding the change requests. Post this working closely with BA to implement the modules.",
+      "Created Report generator, using Windows service for generating large reports based on the user requests.",
+      "Implemented Automated Mail Notification system which was used for sending mails after generating bulk reports based on customer requests.",
+      "Worked on a module, which handled compression of multiple files which were sent across the network.",
+      "Maintenance and creation of documents at different development phases such as BRD, Design Docs, Test cases, Bug Reports.",
+      "Worked on Code optimization and refactoring based on CAST/SAST/DAST reports for making the application stable and secure.",
+      "Created file upload and download functionality using enterprise content management system. Process was written using AJAX, JSON, ASP.NET where files were sent and received from the ECM System.",
+      "Implemented Report generation module which generated the report using Excel file and was sent across the network for download.",
     ],
   },
   {
     title: "Programmer Analyst",
     company: "Cognizant Technology Solutions",
     period: "June 2014 - June 2017",
+    description: "Finance Project – Project aimed at calculating profit gained after performing automation using different technologies. It was an Innovation Management system, which handled the flow from creating an innovation title to approval and final implementation. After the implementation system was calculating the dollars saved.",
     achievements: [
-      "Built automation systems",
-      "Created Automated Reminder Mail service",
-      "Implemented Excel Macros for data validation",
+      "Adhering to Agile Methodologies during web application development.",
+      "Responsible for writing batch jobs using shell script and PL/SQL.",
+      "Coordinating with clients to collect enhancement issues, analysing root cause and assisting in providing efficient resolution in a timely manner.",
+      "Responsible for handling change requests as a part of development in different sprints.",
+      "Responsible for creation and maintenance of documents such as BRD, design docs, unit test cases.",
+      "Used ASP.NET MVC, jQuery, JavaScript, SQL Server as implementing technology for the module.",
+      "Created Automated Reminder Mail service using in-built .NET components.",
+      "Learned and implemented Macros in excel sheet for generating and validating the data from backend.",
     ],
   },
 ];
@@ -131,17 +147,61 @@ export const achievements = [
   "Client Service Appreciation for C++ reverse engineering",
 ];
 
+export const education = [
+  {
+    degree: "B.Tech in Computer Science Engineering",
+    institute: "Lovely Professional University",
+    year: "2010-2014",
+    score: "7.87/10 CGPA",
+  },
+  {
+    degree: "HSC (Class 12th)",
+    institute: "S.R. Century Public School (CBSE)",
+    year: "2009",
+    score: "80.2%",
+  },
+  {
+    degree: "SSC (Class 10th)",
+    institute: "S.R. Century Public School (CBSE)",
+    year: "2007",
+    score: "84.3%",
+  },
+];
+
+export const certifications = [
+  "Artificial Intelligence and Machine Learning for Industry - IIT Delhi (Feb-Aug 2024)",
+  "Microsoft App fest, Jalandhar (Feb 2013)",
+  "Microsoft Tech Days, Lovely Professional University (Oct 2010)",
+  "C# Certification course - Lovely Centre for Skill Development (2013)",
+  "Android Application Development - Lovely Centre for Skill Development (2013)",
+];
+
+export const courseProjects = [
+  {
+    title: "Implementing Sensor technology in automobiles with UI interface designed in android and online tracking",
+    description: "Final year project. Aim was to switch the gears using sensors and displaying the status of the gear currently engaged on the android application. Communication between sensor and android device was done by the Bluetooth technology. Implementation of website using j2ee technology further connected to SQL Server database to keep the history of the location coordinates of the vehicle. This way we were able to track the automobile position all over the globe online.",
+  },
+  {
+    title: "Android application development – Thief Tracker",
+    description: "Third year project. Aimed at searching the lost mobile phones, idea is to get the co-ordinates of the mobile phone through SMS and emails even if the person has changed his mobile number. Backend service implementation and hiding the details of the application running is also the main motive so that thief cannot know about such service and by force stop this to avoid his knows about.",
+  },
+  {
+    title: "Representation of graph through adjacency matrix using C Graphics",
+    description: "Second year project. User interactive program giving him the exposure about the graph theory through adjacency matrix. User can enter the matrix element and can see the detailed implementation of graph step by step. Idea was to learn this representation through animation.",
+  },
+];
+
 // Function to generate dynamic context for chatbot
 export function generateChatbotContext(): string {
   const skillsText = Object.entries(skills)
     .map(([category, items]) => {
-      const skillList = items.map(s => `${s.name}`).join(", ");
+      const skillList = items.map(s => `${s.name} (${s.level}%)`).join(", ");
       return `${category}: ${skillList}`;
     })
     .join("\n");
 
   const projectsText = projects
-    .map(p => `- ${p.title}: ${p.description}`)
+    .map(p => `- ${p.title}: ${p.description}\n  Technologies: ${p.tags.join(", ")}`)
     .join("\n");
 
   const currentRoleText = `${currentRole.title} at ${currentRole.company} (${currentRole.period})
@@ -150,8 +210,22 @@ ${currentRole.achievements.map(a => `- ${a}`).join("\n")}`;
 
   const previousExperienceText = previousExperience
     .map(exp => `${exp.title} at ${exp.company} (${exp.period})
+Description: ${exp.description}
+Achievements:
 ${exp.achievements.map(a => `- ${a}`).join("\n")}`)
     .join("\n\n");
+
+  const educationText = education
+    .map(edu => `- ${edu.degree} from ${edu.institute} (${edu.year}) - Score: ${edu.score}`)
+    .join("\n");
+
+  const certificationsText = certifications
+    .map(cert => `- ${cert}`)
+    .join("\n");
+
+  const courseProjectsText = courseProjects
+    .map(proj => `- ${proj.title}\n  ${proj.description}`)
+    .join("\n");
 
   return `You are an AI assistant for Shashi Kumar's portfolio. Answer questions using ONLY the facts below.
 
@@ -162,8 +236,12 @@ Phone: ${personalInfo.phone}
 Location: ${personalInfo.location}
 LinkedIn: ${personalInfo.linkedin}
 GitHub: ${personalInfo.github}
-Education: ${personalInfo.education}
-AI/ML Certification: ${personalInfo.certification}
+
+EDUCATION:
+${educationText}
+
+CERTIFICATIONS & TRAINING:
+${certificationsText}
 
 CURRENT ROLE:
 ${currentRoleText}
@@ -177,6 +255,9 @@ ${skillsText}
 PROJECTS:
 ${projectsText}
 
+COURSE PROJECTS:
+${courseProjectsText}
+
 ACHIEVEMENTS:
 ${achievements.map(a => `- ${a}`).join("\n")}
 
@@ -187,8 +268,11 @@ A: My name is ${personalInfo.name}.
 Q: How much experience do you have?
 A: Shashi has 11+ years of experience as a full stack developer.
 
-Q: Where did you study AI/ML?
-A: Shashi completed AI/ML certification from IIT Delhi (6 months, Feb-Aug 2024).
+Q: Where did you study?
+A: Shashi completed B.Tech in Computer Science Engineering from Lovely Professional University (2010-2014) with 7.87/10 CGPA. He also completed HSC from S.R. Century Public School (CBSE) in 2009 with 80.2% and SSC in 2007 with 84.3%.
+
+Q: What certifications do you have?
+A: Shashi has completed several certifications including: 1) Artificial Intelligence and Machine Learning for Industry from IIT Delhi (Feb-Aug 2024), 2) Microsoft App fest (Feb 2013), 3) Microsoft Tech Days (Oct 2010), 4) C# Certification from Lovely Centre for Skill Development (2013), and 5) Android Application Development from Lovely Centre for Skill Development (2013).
 
 Q: What is your current role?
 A: Shashi is an ${currentRole.title} at ${currentRole.company} since ${currentRole.period}.
@@ -196,9 +280,16 @@ A: Shashi is an ${currentRole.title} at ${currentRole.company} since ${currentRo
 Q: What projects is he working on at TIS: FIS?
 A: At TIS: FIS, Shashi is working on several major projects including: 1) MCP Servers ecosystem for GitHub, JIRA, Jenkins, Splunk, Windows RDP, and PDF Creator integrated with VS Code, 2) Enterprise AI ChatBot Platform with A2A protocol for multi-agent conversations, 3) Vector Embeddings for per-user agent memory, 4) Security guardrails for PII protection, and 5) OWASP Top 10 security implementations for AI agents.
 
+Q: What were his college projects?
+A: Shashi worked on several course projects including: 1) Implementing Sensor technology in automobiles with Android UI and online tracking (Final year), 2) Android application development - Thief Tracker for locating lost phones (Third year), and 3) Representation of graph through adjacency matrix using C Graphics (Second year).
+
 RULES:
 - When asked about projects, ALWAYS list specific project names and details
-- Provide detailed answers with specific examples
+- When asked about education, provide complete educational history with scores
+- When asked about certifications, list all certifications with dates
+- When asked about experience, provide detailed achievements and responsibilities
+- When asked about skills, mention the proficiency percentages
+- Provide detailed answers with specific examples from the portfolio data
 - Be comprehensive but concise (3-5 sentences for detailed questions)
 - Use ONLY the facts above
 - Never repeat the question
