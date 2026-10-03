@@ -225,9 +225,12 @@ export function generateChatbotContext(): string {
     .map(([category, items]) => `${category}: ${items.map(s => s.name).join(", ")}`)
     .join("; ");
 
+  // Format projects with full descriptions
   const projectsList = projects
-    .map(p => `${p.title} (${p.tags.join(", ")})`)
-    .join("; ");
+    .map(p => `${p.title}
+Description: ${p.description}
+Technologies: ${p.tags.join(", ")}`)
+    .join("\n\n");
 
   const achievementsList = currentRole.achievements.slice(0, 10).join("; ");
 
