@@ -90,12 +90,11 @@ export default function Chatbot() {
       // Get compact portfolio context
       const portfolioContext = generateChatbotContext();
       
-      // Build compact message with context
-      const messageWith = `You are Shashi Kumar's portfolio assistant with complete knowledge of his professional background.
+      // Build direct, focused message
+      const messageWith = `${portfolioContext}
 
-${portfolioContext}
-
-Respond naturally and confidently. Answer questions directly without disclaimers or hedging. Be conversational and helpful (2-3 sentences). For greetings, respond warmly. For off-topic questions, politely redirect to Shashi's professional background. Never say "not provided in context" or similar phrases.`;
+Q: ${userMessage}
+A:`;
 
 
 
