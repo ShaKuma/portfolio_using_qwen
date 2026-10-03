@@ -22,8 +22,6 @@ const projects = portfolioProjects.map((project, index) => ({
     'pink',
     'green',
   ][index] || 'gray',
-  github: '#',
-  live: '#',
   featured: index < 3,
 }));
 
@@ -145,27 +143,9 @@ function ProjectCard({ project, index, isVisible }: ProjectCardProps) {
           )}
 
           {/* Hover overlay with enhanced effects */}
-          <div className="absolute inset-0 bg-dark-bg/80 backdrop-blur-md flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500">
+          <div className="absolute inset-0 bg-dark-bg/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-500">
             {/* Animated border */}
             <div className="absolute inset-0 border-2 border-white/10 rounded-lg m-4 group-hover:border-white/30 transition-colors duration-500" />
-            
-            {/* Action buttons */}
-            <a
-              href={project.github}
-              className="relative w-12 h-12 rounded-full bg-dark-card border-2 border-dark-border flex items-center justify-center text-text-secondary hover:text-primary-light hover:border-primary/50 transition-all hover:scale-125 hover:rotate-12 group-hover:animate-fade-in"
-              style={{ animationDelay: '0.1s' }}
-            >
-              <i className="fab fa-github text-lg"></i>
-              <div className="absolute inset-0 rounded-full bg-primary/20 opacity-0 hover:opacity-100 transition-opacity" />
-            </a>
-            <a
-              href={project.live}
-              className="relative w-12 h-12 rounded-full bg-dark-card border-2 border-dark-border flex items-center justify-center text-text-secondary hover:text-accent-light hover:border-accent/50 transition-all hover:scale-125 hover:-rotate-12 group-hover:animate-fade-in"
-              style={{ animationDelay: '0.2s' }}
-            >
-              <i className="fas fa-external-link-alt text-lg"></i>
-              <div className="absolute inset-0 rounded-full bg-accent/20 opacity-0 hover:opacity-100 transition-opacity" />
-            </a>
           </div>
         </div>
 
